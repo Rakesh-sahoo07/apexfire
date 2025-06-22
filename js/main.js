@@ -1,4 +1,4 @@
-// Random name generator
+// Random name generator with unique ID system
 class NameGenerator {
     static adjectives = [
         'Shadow', 'Silent', 'Swift', 'Deadly', 'Elite', 'Ghost', 'Viper', 'Storm', 'Fire', 'Ice',
@@ -19,8 +19,28 @@ class NameGenerator {
     static generate() {
         const adjective = this.adjectives[Math.floor(Math.random() * this.adjectives.length)];
         const noun = this.nouns[Math.floor(Math.random() * this.nouns.length)];
-        const number = Math.floor(Math.random() * 999) + 1;
-        return `${adjective}${noun}${number}`;
+        return `${adjective}${noun}`;
+    }
+
+    // Generate unique player ID (timestamp + random)
+    static generateUniqueId() {
+        const timestamp = Date.now().toString().slice(-6); // Last 6 digits of timestamp
+        const random = Math.floor(Math.random() * 999).toString().padStart(3, '0'); // 3-digit random number
+        return `${timestamp}${random}`;
+    }
+
+    // Add unique ID to any name
+    static makeUnique(baseName) {
+        const uniqueId = this.generateUniqueId();
+        // Remove any existing numbers from the end of the name
+        const cleanName = baseName.replace(/\d+$/, '').trim();
+        return `${cleanName}#${uniqueId}`;
+    }
+
+    // Generate complete unique name
+    static generateUnique() {
+        const baseName = this.generate();
+        return this.makeUnique(baseName);
     }
 }
 
@@ -28,7 +48,7 @@ class NameGenerator {
 class GameController {
     constructor() {
         this.currentScreen = 'lobby';
-        this.playerName = NameGenerator.generate(); // Generate random name
+        this.playerName = NameGenerator.generateUnique(); // Generate unique random name
         this.gameInstance = null;
         this.init();
     }
@@ -39,14 +59,22 @@ class GameController {
         this.showScreen('lobby');
         this.updateStats();
         
-        // Set the generated random name in the input field
-        document.getElementById('playerName').value = this.playerName;
+        // Set the generated random name in the input field (show only base name)
+        const baseName = this.playerName.split('#')[0];
+        document.getElementById('playerName').value = baseName;
     }
 
     setupEventListeners() {
         // Play button
         document.getElementById('playButton').addEventListener('click', () => {
-            this.playerName = document.getElementById('playerName').value || NameGenerator.generate();
+            const inputName = document.getElementById('playerName').value.trim();
+            if (inputName) {
+                // User entered a custom name, make it unique
+                this.playerName = NameGenerator.makeUnique(inputName);
+            } else {
+                // Generate a completely new unique name
+                this.playerName = NameGenerator.generateUnique();
+            }
             this.startMatchmaking();
         });
 
@@ -72,14 +100,23 @@ class GameController {
 
         // Generate name button
         document.getElementById('generateNameBtn').addEventListener('click', () => {
-            const newName = NameGenerator.generate();
-            document.getElementById('playerName').value = newName;
-            this.playerName = newName;
+            const newName = NameGenerator.generateUnique();
+            // Show only the base name in the input field (without the unique ID)
+            const baseName = newName.split('#')[0];
+            document.getElementById('playerName').value = baseName;
+            this.playerName = newName; // Store the full unique name
         });
 
-        // Update player name when user types
+        // Update player name when user types (but don't generate unique ID until play)
         document.getElementById('playerName').addEventListener('input', (e) => {
-            this.playerName = e.target.value || NameGenerator.generate();
+            const inputValue = e.target.value.trim();
+            if (inputValue) {
+                // Store just the base name, unique ID will be added when playing
+                this.playerName = inputValue;
+            } else {
+                // Generate new unique name if field is empty
+                this.playerName = NameGenerator.generateUnique();
+            }
         });
 
         // Enhanced mobile zoom prevention

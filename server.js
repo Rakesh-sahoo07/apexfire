@@ -576,6 +576,44 @@ function findAvailableRoom() {
     return newRoom;
 }
 
+// Helper function to ensure unique player names across all rooms
+function ensureUniquePlayerName(requestedName) {
+    const allPlayerNames = new Set();
+    
+    // Collect all player names from all active rooms
+    rooms.forEach(room => {
+        room.players.forEach(player => {
+            allPlayerNames.add(player.name);
+        });
+    });
+    
+    // If name doesn't already have a unique ID format, or if it conflicts, generate new one
+    if (!requestedName.includes('#') || allPlayerNames.has(requestedName)) {
+        // Extract base name (remove any existing # suffix)
+        const baseName = requestedName.split('#')[0];
+        
+        // Generate unique identifier
+        const timestamp = Date.now().toString().slice(-6);
+        const random = Math.floor(Math.random() * 999).toString().padStart(3, '0');
+        const uniqueId = `${timestamp}${random}`;
+        
+        let uniqueName = `${baseName}#${uniqueId}`;
+        
+        // Double-check uniqueness (very rare case of collision)
+        let attempts = 0;
+        while (allPlayerNames.has(uniqueName) && attempts < 10) {
+            const newRandom = Math.floor(Math.random() * 999).toString().padStart(3, '0');
+            uniqueName = `${baseName}#${timestamp}${newRandom}`;
+            attempts++;
+        }
+        
+        return uniqueName;
+    }
+    
+    // If name already has unique format and doesn't conflict, keep it
+    return requestedName;
+}
+
 // Socket.IO connection handling
 io.on('connection', (socket) => {
     console.log(`Player connected: ${socket.id}`);
@@ -585,6 +623,12 @@ io.on('connection', (socket) => {
     // Handle player joining matchmaking
     socket.on('joinMatchmaking', (playerData) => {
         console.log(`${playerData.name} (${socket.id}) joining matchmaking`);
+        
+        // Ensure name uniqueness across all rooms
+        const uniqueName = ensureUniquePlayerName(playerData.name);
+        playerData.name = uniqueName;
+        
+        console.log(`Final unique name: ${uniqueName}`);
         
         // Find available room
         const room = findAvailableRoom();

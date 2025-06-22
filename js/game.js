@@ -977,8 +977,17 @@ class GameEngine {
                 (player.kills === 0 ? '0.00' : player.kills.toFixed(2)) : 
                 (player.kills / player.deaths).toFixed(2);
             
+            // Format player name with unique ID styling
+            const formatPlayerName = (name) => {
+                if (name.includes('#')) {
+                    const [baseName, uniqueId] = name.split('#');
+                    return `${baseName}<span class="unique-id">#${uniqueId}</span>`;
+                }
+                return name;
+            };
+            
             item.innerHTML = `
-                <span class="player-name">${player.name}</span>
+                <span class="player-name">${formatPlayerName(player.name)}</span>
                 <span class="stat-kills">${player.kills}</span>
                 <span class="stat-deaths">${player.deaths}</span>
                 <span class="stat-kd">${kdRatio}</span>
