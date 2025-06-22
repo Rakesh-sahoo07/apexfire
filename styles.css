@@ -87,11 +87,15 @@ body {
     padding: 20px;
     max-width: 400px;
     width: 90%;
+    display: flex;
+    flex-direction: column;
+    height: auto;
 }
 
 .lobby-left, .lobby-right {
-    /* Default styles for non-landscape */
+    /* Default styles for portrait */
     display: block;
+    width: 100%;
 }
 
 .game-title {
@@ -552,15 +556,18 @@ body {
     justify-content: space-between;
     align-items: center;
     z-index: 10;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .health-bar {
     position: relative;
-    width: 20dvw;
-    height: 4dvh;
+    width: 35dvw;
+    height: 6dvh;
     background: rgba(0,0,0,0.5);
     border-radius: 15px;
     overflow: hidden;
+    min-width: 120px;
 }
 
 .health-fill {
@@ -868,36 +875,39 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 25dvh;
+    height: 40dvh;
     z-index: 100;
+    padding: 10px;
 }
 
 .joystick-container {
     position: absolute;
-    bottom: 4dvh;
-    left: 4dvw;
-    width: 12dvmin;
-    height: 12dvmin;
+    bottom: 8dvh;
+    left: 5dvw;
+    width: 15dvmin;
+    height: 15dvmin;
     background: rgba(255,255,255,0.1);
     border-radius: 50%;
     border: 3px solid rgba(255,255,255,0.3);
+    touch-action: none;
 }
 
 .joystick-container.right {
     left: auto;
-    right: 4dvw;
+    right: 5dvw;
 }
 
 .joystick-knob {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     background: rgba(255,255,255,0.8);
     border-radius: 50%;
     transform: translate(-50%, -50%);
     transition: all 0.1s ease;
+    touch-action: none;
 }
 
 .joystick-container.auto-fire {
@@ -925,22 +935,22 @@ body {
 
 .action-buttons {
     position: absolute;
-    bottom: 4dvh;
-    right: 20dvw;
+    bottom: 8dvh;
+    right: 25dvw;
     display: flex;
     flex-direction: column;
-    gap: 2dvh;
+    gap: 3dvh;
 }
 
 .action-btn {
-    width: 9dvmin;
-    height: 9dvmin;
+    width: 12dvmin;
+    height: 12dvmin;
     background: rgba(255,107,107,0.8);
     border: 3px solid rgba(255,107,107,0.6);
     border-radius: 50%;
     color: white;
     font-weight: bold;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
@@ -948,6 +958,7 @@ body {
     justify-content: center;
     text-align: center;
     box-shadow: 0 4px 15px rgba(255,107,107,0.3);
+    touch-action: manipulation;
 }
 
 .action-btn:active {
@@ -1025,38 +1036,39 @@ body {
     margin-top: 10px;
 }
 
-/* Responsive Design - Landscape Mobile Optimized */
-@media (max-width: 1024px) and (orientation: landscape) {
-    /* Lobby Screen - Horizontal Layout */
+/* Responsive Design - Portrait Mobile Optimized */
+@media (max-width: 768px) and (orientation: portrait) {
+    /* Lobby Screen - Vertical Layout */
     .lobby-container {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         align-items: center;
-        justify-content: space-between;
-        max-width: 90%;
+        justify-content: center;
+        max-width: 95%;
         width: 100%;
-        padding: 20px;
-        gap: 30px;
+        padding: 15px;
+        gap: 20px;
+        height: auto;
     }
     
     .game-title {
-        font-size: 2.5rem;
-        margin-bottom: 20px;
-        writing-mode: horizontal-tb;
+        font-size: 2rem;
+        margin-bottom: 15px;
     }
     
     .lobby-left {
-        flex: 1;
+        width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
+        margin-bottom: 20px;
     }
     
     .lobby-right {
-        flex: 1;
+        width: 100%;
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 15px;
     }
     
     .player-info {
@@ -1203,69 +1215,148 @@ body {
     }
 }
 
-/* Portrait Mobile - Show orientation message */
+/* Portrait Mobile - Optimized for World App */
 @media (max-width: 768px) and (orientation: portrait) {
+    /* Allow game in portrait mode */
     .orientation-message {
+        display: none !important;
+    }
+    
+    .screen {
         display: flex !important;
     }
     
-    /* Hide main content in portrait mode */
-    .screen {
-        display: none !important;
+    .screen.active {
+        display: flex !important;
     }
 }
 
-/* Larger screens in portrait - Allow normal usage */
-@media (min-width: 769px) and (orientation: portrait) {
+/* Portrait mode optimizations for all screen sizes */
+@media (orientation: portrait) {
     .game-title {
         font-size: 2rem;
+        text-align: center;
+    }
+    
+    .lobby-container {
+        max-width: 95%;
+        padding: 15px;
+    }
+    
+    .world-id-content {
+        max-width: 90%;
+        padding: 30px 20px;
     }
     
     .top-hud {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-wrap: wrap;
         gap: 8px;
-        top: 10px;
-        left: 10px;
-        right: 10px;
+        top: 1dvh;
+        left: 2dvw;
+        right: 2dvw;
     }
     
     .health-bar {
-        width: 150px;
-        height: 20px;
+        width: 45dvw;
+        height: 5dvh;
+        min-width: 150px;
     }
     
     .score-info, .ammo-info {
-        padding: 5px 10px;
-        font-size: 0.8rem;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        min-width: 60px;
     }
     
     .mobile-controls {
-        height: 180px;
+        height: 35dvh;
+        padding: 10px;
     }
     
     .joystick-container {
-        width: 85px;
-        height: 85px;
-        bottom: 25px;
+        width: 16dvmin;
+        height: 16dvmin;
+        bottom: 6dvh;
+    }
+    
+    .joystick-container.left {
+        left: 4dvw;
+    }
+    
+    .joystick-container.right {
+        right: 4dvw;
     }
     
     .joystick-knob {
-        width: 32px;
-        height: 32px;
+        width: 55px;
+        height: 55px;
     }
     
     .action-buttons {
-        bottom: 25px;
-        right: 110px;
+        bottom: 6dvh;
+        right: 23dvw;
         flex-direction: column;
-        gap: 12px;
+        gap: 2.5dvh;
     }
     
     .action-btn {
-        width: 55px;
-        height: 55px;
-        font-size: 1.2rem;
+        width: 13dvmin;
+        height: 13dvmin;
+        font-size: 1.5rem;
+    }
+    
+    .kill-feed {
+        top: 12dvh;
+        right: 2dvw;
+        width: 55dvw;
+        max-height: 25dvh;
+    }
+    
+    .leaderboard {
+        width: 90dvw;
+        height: 70dvh;
+        top: 10dvh;
+        left: 5dvw;
+        right: 5dvw;
+    }
+}
+
+/* Touch optimization */
+@media (pointer: coarse) {
+    /* Increase touch targets for mobile */
+    .action-btn {
+        min-width: 60px;
+        min-height: 60px;
+    }
+    
+    .joystick-container {
+        min-width: 80px;
+        min-height: 80px;
+    }
+    
+    .sound-toggle, .leaderboard-toggle {
+        min-width: 40px;
+        min-height: 40px;
+    }
+    
+    .generate-name-btn {
+        min-width: 50px;
+        min-height: 50px;
+    }
+    
+    .world-id-button {
+        min-height: 50px;
+        touch-action: manipulation;
+    }
+    
+    .logout-button {
+        min-height: 45px;
+        touch-action: manipulation;
+    }
+    
+    .play-button {
+        min-height: 55px;
+        touch-action: manipulation;
     }
 }
 
