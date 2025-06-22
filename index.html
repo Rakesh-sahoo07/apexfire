@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, orientation=landscape">
+    <title>ApexFire</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Orientation Message -->
+    <div class="orientation-message" id="orientationMessage">
+        <div class="rotate-icon">📱</div>
+        <h2>Rotate Your Device</h2>
+        <p>This game is optimized for landscape mode. Please rotate your device horizontally for the best experience.</p>
+    </div>
+
+    <!-- Lobby Screen -->
+    <div id="lobby" class="screen active">
+        <div class="lobby-container">
+            <div class="lobby-left">
+                <h1 class="game-title">ApexFire</h1>
+                <div class="game-info">
+                    <p>• Mobile optimized controls</p>
+                    <p>• 6 players per room</p>
+                    <p>• AK47 weapon available</p>
+                    <p>• Landscape mode optimized</p>
+                </div>
+            </div>
+            <div class="lobby-right">
+                <div class="player-info">
+                    <input type="text" id="playerName" placeholder="Enter your name" maxlength="15" value="Player1">
+                    <button id="generateNameBtn" class="generate-name-btn">🎲</button>
+                </div>
+                <div class="game-stats">
+                    <div class="stat">
+                        <span class="stat-label">Players Online:</span>
+                        <span class="stat-value" id="playersOnline">127</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Rooms Available:</span>
+                        <span class="stat-value" id="roomsAvailable">8</span>
+                    </div>
+                </div>
+                <button id="playButton" class="play-button">PLAY</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading" class="screen">
+        <div class="loading-container">
+            <h2>Finding Match...</h2>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p>Players: <span id="loadingPlayers">1/6</span></p>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game" class="screen">
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- UI Elements -->
+        <div class="game-ui">
+            <!-- Top HUD -->
+            <div class="top-hud">
+                <div class="health-bar">
+                    <div class="health-fill" id="healthFill"></div>
+                    <span class="health-text" id="healthText">100</span>
+                </div>
+                <div class="score-info">
+                    <span id="killCount">0</span> Kills
+                </div>
+                <div class="ammo-info">
+                    <span id="ammoCount">30</span> / <span id="ammoReserve">120</span>
+                </div>
+                <button class="sound-toggle" id="soundToggle">🔊</button>
+            </div>
+
+            <!-- Kill Feed -->
+            <div class="kill-feed" id="killFeed"></div>
+
+            <!-- Leaderboard -->
+            <div class="leaderboard" id="leaderboard">
+                <h3>Leaderboard</h3>
+                <div class="leaderboard-list" id="leaderboardList"></div>
+            </div>
+
+            <!-- Mobile Controls -->
+            <div class="mobile-controls">
+                <!-- Movement Joystick -->
+                <div class="joystick-container" id="moveJoystick">
+                    <div class="joystick-knob"></div>
+                </div>
+
+                <!-- Look/Aim Joystick -->
+                <div class="joystick-container right" id="lookJoystick">
+                    <div class="joystick-knob"></div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="action-btn shoot-btn" id="shootBtn">🔥</button>
+                    <button class="action-btn reload-btn" id="reloadBtn">🔄</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOver" class="screen">
+        <div class="game-over-container">
+            <h2>Game Over</h2>
+            <div class="final-stats">
+                <div class="stat">
+                    <span class="stat-label">Kills:</span>
+                    <span class="stat-value" id="finalKills">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Deaths:</span>
+                    <span class="stat-value" id="finalDeaths">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Score:</span>
+                    <span class="stat-value" id="finalScore">0</span>
+                </div>
+            </div>
+            <button id="playAgainButton" class="play-button">PLAY AGAIN</button>
+            <button id="menuButton" class="menu-button">MAIN MENU</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="js/audioManager.js"></script>
+    <script src="js/networkManager.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/controls.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html> 
