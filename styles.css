@@ -349,6 +349,17 @@ body {
     margin-bottom: 15px;
 }
 
+.verification-note {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: rgba(0, 255, 150, 0.9);
+    margin-bottom: 20px;
+    padding: 10px;
+    background: rgba(0, 255, 150, 0.1);
+    border-radius: 8px;
+    border-left: 3px solid rgba(0, 255, 150, 0.5);
+}
+
 .info-links {
     display: flex;
     justify-content: center;

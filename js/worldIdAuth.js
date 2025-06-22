@@ -92,15 +92,12 @@ class WorldIdAuth {
 
     async openWorldIdVerification() {
         try {
-            // Check if MiniKit is available
-            if (typeof window.MiniKit === 'undefined') {
+            // Check if we're in World App environment
+            const isInWorldApp = this.isInWorldApp();
+            console.log('World App environment check:', isInWorldApp);
+            
+            if (!isInWorldApp) {
                 this.showError('This app must be opened in World App to verify your World ID.');
-                return;
-            }
-
-            // Check if MiniKit is installed
-            if (!window.MiniKit.isInstalled()) {
-                this.showError('World App is required for verification. Please open this app in World App.');
                 return;
             }
 
@@ -273,6 +270,43 @@ class WorldIdAuth {
         this.updateVerificationStatus('Ready to verify your World ID', '🔐');
         
         console.log('User logged out');
+    }
+
+    // Better method to detect World App environment
+    isInWorldApp() {
+        // Check multiple indicators that we're in World App
+        const indicators = {
+            miniKitExists: typeof window.MiniKit !== 'undefined',
+            userAgent: navigator.userAgent.toLowerCase().includes('world'),
+            worldAppContext: window.location.href.includes('worldapp') || 
+                           window.location.href.includes('world-app') ||
+                           document.referrer.includes('worldapp'),
+            miniKitInstalled: false,
+            hasCommandsAsync: false
+        };
+
+        // Check if MiniKit is properly installed
+        if (indicators.miniKitExists) {
+            try {
+                // Check if commandsAsync exists (this is a good indicator)
+                indicators.hasCommandsAsync = typeof window.MiniKit.commandsAsync !== 'undefined';
+                
+                if (typeof window.MiniKit.isInstalled === 'function') {
+                    indicators.miniKitInstalled = window.MiniKit.isInstalled();
+                } else {
+                    // If isInstalled method doesn't exist, assume it's installed if commandsAsync exists
+                    indicators.miniKitInstalled = indicators.hasCommandsAsync;
+                }
+            } catch (error) {
+                console.log('Error checking MiniKit installation:', error);
+                indicators.miniKitInstalled = false;
+            }
+        }
+
+        console.log('World App detection indicators:', indicators);
+        
+        // We're in World App if MiniKit exists and has the necessary methods
+        return indicators.miniKitExists && (indicators.hasCommandsAsync || indicators.miniKitInstalled);
     }
 
     // Public methods for the game to use

@@ -44,6 +44,10 @@
                             <strong>What is World ID?</strong><br>
                             World ID is a privacy-preserving proof of personhood protocol that ensures you're a unique human without revealing your identity.
                         </p>
+                        <p class="verification-note">
+                            <strong>💡 How it works:</strong><br>
+                            Just tap "Verify with World ID" above - verification happens instantly within this app. No QR codes or external scanning needed!
+                        </p>
                         <div class="info-links">
                             <a href="https://world.org/world-id" target="_blank" rel="noopener noreferrer">Learn More</a>
                             <span>•</span>
@@ -223,9 +227,34 @@
     <script src="https://unpkg.com/@worldcoin/minikit-js@latest/dist/minikit.umd.js"></script>
     <script>
         // Initialize MiniKit when the script loads
+        console.log('Checking MiniKit availability...');
+        console.log('User Agent:', navigator.userAgent);
+        console.log('Current URL:', window.location.href);
+        console.log('Referrer:', document.referrer);
+        
         if (typeof window.MiniKit !== 'undefined') {
-            window.MiniKit.install();
-            console.log('MiniKit installed successfully');
+            console.log('MiniKit found! Available methods:', Object.keys(window.MiniKit));
+            try {
+                if (typeof window.MiniKit.install === 'function') {
+                    window.MiniKit.install();
+                    console.log('MiniKit install() called successfully');
+                } else {
+                    console.log('MiniKit install() method not found - may already be installed');
+                }
+                
+                // Check installation status
+                if (typeof window.MiniKit.isInstalled === 'function') {
+                    console.log('MiniKit installation status:', window.MiniKit.isInstalled());
+                }
+                
+                // Check for commandsAsync
+                if (typeof window.MiniKit.commandsAsync !== 'undefined') {
+                    console.log('MiniKit commandsAsync available:', Object.keys(window.MiniKit.commandsAsync));
+                }
+                
+            } catch (error) {
+                console.error('Error initializing MiniKit:', error);
+            }
         } else {
             console.log('MiniKit not available - may not be running in World App');
         }
