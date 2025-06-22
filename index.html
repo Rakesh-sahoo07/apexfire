@@ -14,68 +14,8 @@
         <p>This game is optimized for portrait mode. Please hold your device vertically for the best experience.</p>
     </div>
 
-    <!-- World ID Login Screen -->
-    <div id="worldIdLogin" class="screen active">
-        <div class="world-id-container">
-            <div class="world-id-content">
-                <div class="world-id-header">
-                    <h1 class="game-title">ApexFire</h1>
-                    <div class="world-id-logo">🌍</div>
-                    <h2>Human-Only Gaming</h2>
-                    <p class="world-id-description">
-                        Verify your humanity with World ID to access our bot-free gaming environment.
-                        Only verified humans can play ApexFire.
-                    </p>
-                </div>
-                
-                <div class="world-id-verification">
-                    <div class="verification-status" id="verificationStatus">
-                        <div class="status-icon">🔐</div>
-                        <p>Ready to verify your World ID</p>
-                    </div>
-                    
-                    <button id="worldIdVerifyBtn" class="world-id-button">
-                        <span class="button-icon">🌍</span>
-                        Verify with World ID
-                    </button>
-                    
-                    <div class="world-id-info">
-                        <p class="info-text">
-                            <strong>What is World ID?</strong><br>
-                            World ID is a privacy-preserving proof of personhood protocol that ensures you're a unique human without revealing your identity.
-                        </p>
-                        <p class="verification-note">
-                            <strong>💡 How it works:</strong><br>
-                            Just tap "Verify with World ID" above - verification happens instantly within this app. No QR codes or external scanning needed!
-                        </p>
-                        <div class="info-links">
-                            <a href="https://world.org/world-id" target="_blank" rel="noopener noreferrer">Learn More</a>
-                            <span>•</span>
-                            <a href="https://apps.apple.com/app/world-app-worldcoin-wallet/id1560859847" target="_blank" rel="noopener noreferrer">Get World App</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="world-id-features">
-                    <div class="feature">
-                        <span class="feature-icon">🛡️</span>
-                        <span>Bot Protection</span>
-                    </div>
-                    <div class="feature">
-                        <span class="feature-icon">🔒</span>
-                        <span>Privacy First</span>
-                    </div>
-                    <div class="feature">
-                        <span class="feature-icon">👥</span>
-                        <span>Human-Only Matches</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Lobby Screen -->
-    <div id="lobby" class="screen">
+    <div id="lobby" class="screen active">
         <div class="lobby-container">
             <div class="lobby-left">
                 <h1 class="game-title">ApexFire</h1>
@@ -84,17 +24,7 @@
                     <p>• 6 players per room</p>
                     <p>• AK47 weapon available</p>
                     <p>• Portrait mode optimized</p>
-                    <p>• Human-verified players only 🌍</p>
-                </div>
-                <div class="world-id-player-info">
-                    <div class="verified-badge">
-                        <span class="badge-icon">✅</span>
-                        <span>Verified Human</span>
-                    </div>
-                    <div class="player-world-id">
-                        <span class="world-id-label">World ID:</span>
-                        <span class="world-id-display" id="playerWorldId">Loading...</span>
-                    </div>
+                    <p>• Fast-paced action gameplay</p>
                 </div>
             </div>
             <div class="lobby-right">
@@ -116,7 +46,6 @@
                     </div>
                 </div>
                 <button id="playButton" class="play-button">PLAY</button>
-                <button id="logoutButton" class="logout-button">Logout</button>
             </div>
         </div>
     </div>
@@ -224,47 +153,11 @@
 
     <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="https://unpkg.com/@worldcoin/minikit-js@latest/dist/minikit.umd.js"></script>
-    <script>
-        // Initialize MiniKit when the script loads
-        console.log('Checking MiniKit availability...');
-        console.log('User Agent:', navigator.userAgent);
-        console.log('Current URL:', window.location.href);
-        console.log('Referrer:', document.referrer);
-        
-        if (typeof window.MiniKit !== 'undefined') {
-            console.log('MiniKit found! Available methods:', Object.keys(window.MiniKit));
-            try {
-                if (typeof window.MiniKit.install === 'function') {
-                    window.MiniKit.install();
-                    console.log('MiniKit install() called successfully');
-                } else {
-                    console.log('MiniKit install() method not found - may already be installed');
-                }
-                
-                // Check installation status
-                if (typeof window.MiniKit.isInstalled === 'function') {
-                    console.log('MiniKit installation status:', window.MiniKit.isInstalled());
-                }
-                
-                // Check for commandsAsync
-                if (typeof window.MiniKit.commandsAsync !== 'undefined') {
-                    console.log('MiniKit commandsAsync available:', Object.keys(window.MiniKit.commandsAsync));
-                }
-                
-            } catch (error) {
-                console.error('Error initializing MiniKit:', error);
-            }
-        } else {
-            console.log('MiniKit not available - may not be running in World App');
-        }
-    </script>
     <script src="js/audioManager.js"></script>
     <script src="js/networkManager.js"></script>
     <script src="js/game.js"></script>
     <script src="js/player.js"></script>
     <script src="js/controls.js"></script>
-    <script src="js/worldIdAuth.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html> 

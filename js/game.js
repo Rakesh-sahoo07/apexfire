@@ -372,6 +372,13 @@ class GameEngine {
     }
     
     setupUI() {
+        // Ensure leaderboard is initially hidden
+        const leaderboard = document.getElementById('leaderboard');
+        if (leaderboard) {
+            leaderboard.classList.add('hidden');
+            leaderboard.classList.remove('show');
+        }
+        
         // Setup leaderboard toggle functionality
         this.setupLeaderboardToggle();
     }
