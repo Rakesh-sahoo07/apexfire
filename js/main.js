@@ -82,21 +82,46 @@ class GameController {
             this.playerName = e.target.value || NameGenerator.generate();
         });
 
-        // Prevent zoom on double tap
+        // Enhanced mobile zoom prevention
+        this.setupMobileZoomPrevention();
+    }
+
+    setupMobileZoomPrevention() {
+        // Prevent multi-touch zoom
         document.addEventListener('touchstart', (e) => {
             if (e.touches.length > 1) {
                 e.preventDefault();
             }
-        });
+        }, { passive: false });
 
+        // Prevent double-tap zoom
         let lastTouchEnd = 0;
         document.addEventListener('touchend', (e) => {
-            const now = (new Date()).getTime();
+            const now = Date.now();
             if (now - lastTouchEnd <= 300) {
                 e.preventDefault();
             }
             lastTouchEnd = now;
-        }, false);
+        }, { passive: false });
+
+        // Prevent gesturestart events (iOS)
+        document.addEventListener('gesturestart', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        // Prevent wheel zoom
+        document.addEventListener('wheel', (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Prevent keyboard zoom shortcuts
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '0')) {
+                e.preventDefault();
+            }
+        });
     }
 
     showScreen(screenName) {

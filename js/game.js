@@ -377,33 +377,85 @@ class GameEngine {
     }
 
     setupLeaderboardToggle() {
+        // Remove any existing event listeners to prevent duplicates
+        this.removeExistingLeaderboardListeners();
+        
         const leaderboardToggle = document.getElementById('leaderboardToggle');
         const leaderboardClose = document.getElementById('leaderboardClose');
         const leaderboard = document.getElementById('leaderboard');
         
-        // Toggle leaderboard visibility
-        leaderboardToggle.addEventListener('click', () => {
+        if (!leaderboardToggle || !leaderboardClose || !leaderboard) {
+            console.warn('Leaderboard elements not found, retrying in 100ms...');
+            setTimeout(() => this.setupLeaderboardToggle(), 100);
+            return;
+        }
+        
+        // Create bound methods to store references for removal
+        this.toggleLeaderboardBound = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             this.toggleLeaderboard();
-        });
+        };
         
-        // Close leaderboard
-        leaderboardClose.addEventListener('click', () => {
+        this.closeLeaderboardBound = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             this.hideLeaderboard();
-        });
+        };
         
-        // Close leaderboard when clicking outside
-        document.addEventListener('click', (e) => {
+        this.outsideClickBound = (e) => {
             if (!leaderboard.contains(e.target) && !leaderboardToggle.contains(e.target)) {
                 if (leaderboard.classList.contains('show')) {
                     this.hideLeaderboard();
                 }
             }
-        });
+        };
+        
+        // Add event listeners
+        leaderboardToggle.addEventListener('click', this.toggleLeaderboardBound);
+        leaderboardToggle.addEventListener('touchend', this.toggleLeaderboardBound);
+        
+        leaderboardClose.addEventListener('click', this.closeLeaderboardBound);
+        leaderboardClose.addEventListener('touchend', this.closeLeaderboardBound);
+        
+        // Delayed addition of outside click listener to prevent immediate closing
+        setTimeout(() => {
+            document.addEventListener('click', this.outsideClickBound);
+        }, 100);
+        
+        console.log('Leaderboard toggle setup complete');
+    }
+
+    removeExistingLeaderboardListeners() {
+        const leaderboardToggle = document.getElementById('leaderboardToggle');
+        const leaderboardClose = document.getElementById('leaderboardClose');
+        
+        // Remove existing listeners if they exist
+        if (this.toggleLeaderboardBound && leaderboardToggle) {
+            leaderboardToggle.removeEventListener('click', this.toggleLeaderboardBound);
+            leaderboardToggle.removeEventListener('touchend', this.toggleLeaderboardBound);
+        }
+        
+        if (this.closeLeaderboardBound && leaderboardClose) {
+            leaderboardClose.removeEventListener('click', this.closeLeaderboardBound);
+            leaderboardClose.removeEventListener('touchend', this.closeLeaderboardBound);
+        }
+        
+        if (this.outsideClickBound) {
+            document.removeEventListener('click', this.outsideClickBound);
+        }
     }
 
     toggleLeaderboard() {
         const leaderboard = document.getElementById('leaderboard');
         const toggle = document.getElementById('leaderboardToggle');
+        
+        if (!leaderboard || !toggle) {
+            console.warn('Leaderboard elements not found for toggle');
+            return;
+        }
+        
+        console.log('Toggling leaderboard, current state:', leaderboard.classList.contains('show'));
         
         if (leaderboard.classList.contains('show')) {
             this.hideLeaderboard();
@@ -416,24 +468,43 @@ class GameEngine {
         const leaderboard = document.getElementById('leaderboard');
         const toggle = document.getElementById('leaderboardToggle');
         
-        leaderboard.classList.remove('hidden');
-        leaderboard.classList.add('show');
-        toggle.classList.add('active');
+        if (!leaderboard || !toggle) {
+            console.warn('Leaderboard elements not found for show');
+            return;
+        }
         
-        // Update leaderboard content when showing
-        this.updateLeaderboard();
+        console.log('Showing leaderboard');
+        
+        // Ensure the leaderboard is ready
+        leaderboard.classList.remove('hidden');
+        
+        // Use requestAnimationFrame to ensure DOM is ready
+        requestAnimationFrame(() => {
+            leaderboard.classList.add('show');
+            toggle.classList.add('active');
+            
+            // Update leaderboard content when showing
+            this.updateLeaderboard();
+        });
     }
 
     hideLeaderboard() {
         const leaderboard = document.getElementById('leaderboard');
         const toggle = document.getElementById('leaderboardToggle');
         
+        if (!leaderboard || !toggle) {
+            console.warn('Leaderboard elements not found for hide');
+            return;
+        }
+        
+        console.log('Hiding leaderboard');
+        
         leaderboard.classList.remove('show');
         toggle.classList.remove('active');
         
         // Add hidden class after animation completes
         setTimeout(() => {
-            if (!leaderboard.classList.contains('show')) {
+            if (leaderboard && !leaderboard.classList.contains('show')) {
                 leaderboard.classList.add('hidden');
             }
         }, 400);
@@ -1378,6 +1449,10 @@ class GameEngine {
     
     destroy() {
         this.isRunning = false;
+        
+        // Clean up leaderboard listeners
+        this.removeExistingLeaderboardListeners();
+        
         if (this.controls) {
             this.controls.destroy();
         }

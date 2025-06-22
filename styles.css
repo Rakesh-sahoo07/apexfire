@@ -18,6 +18,11 @@ body {
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
+    /* Prevent double tap zoom on mobile */
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* Landscape orientation message */
@@ -254,6 +259,7 @@ body {
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
+    touch-action: none;
 }
 
 .game-ui {
@@ -331,6 +337,12 @@ body {
     justify-content: center;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    /* Prevent zoom and improve touch */
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
 }
 
 .sound-toggle:hover, .leaderboard-toggle:hover {
@@ -452,6 +464,12 @@ body {
     justify-content: center;
     font-size: 14px;
     font-weight: bold;
+    /* Prevent zoom and improve touch */
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
 }
 
 .leaderboard-close:hover {
