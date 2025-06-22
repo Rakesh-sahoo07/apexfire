@@ -1,4 +1,4 @@
-// World ID Authentication Manager
+// World ID Authentication Manager for Mini Apps
 class WorldIdAuth {
     constructor() {
         this.isAuthenticated = false;
@@ -7,9 +7,9 @@ class WorldIdAuth {
         
         // Configuration - Replace with your actual World ID app details
         this.config = {
-            app_id: 'app_2801b290146f908019d18744581aa6e2', // Replace with your World ID app ID
-            action: 'login', // Action identifier
-            verification_level: 'device' // 'device' or 'orb'
+            app_id: 'app_2801b290146f908019d18744581aa6e2', // Replace with your actual World ID app ID from Developer Portal
+            action: 'login', // Action identifier - must match action created in Developer Portal
+            verification_level: 'Device' // 'Device' or 'Orb' - note the capitalization
         };
         
         this.init();
@@ -35,7 +35,7 @@ class WorldIdAuth {
         }
 
         this.setupEventListeners();
-        this.initializeIDKit();
+        this.initializeMiniKit();
     }
 
     setupEventListeners() {
@@ -56,70 +56,91 @@ class WorldIdAuth {
         }
     }
 
-    initializeIDKit() {
+    initializeMiniKit() {
         try {
-            // Initialize IDKit with configuration
-            window.IDKit.init({
-                app_id: this.config.app_id,
-                action: this.config.action,
-                verification_level: this.config.verification_level,
-                onSuccess: (result) => this.handleSuccess(result),
-                onError: (error) => this.handleError(error),
-                handleVerify: (result) => this.handleVerify(result)
-            });
+            // Check if MiniKit is available (running in World App)
+            if (typeof window.MiniKit === 'undefined') {
+                console.error('MiniKit not available - not running in World App');
+                this.showError('This app must be opened in World App to verify your World ID.');
+                return;
+            }
+
+            console.log('MiniKit object found:', window.MiniKit);
+            console.log('MiniKit methods available:', Object.keys(window.MiniKit));
             
-            console.log('IDKit initialized successfully');
+            // Initialize MiniKit (it might already be installed)
+            if (typeof window.MiniKit.install === 'function') {
+                window.MiniKit.install();
+                console.log('MiniKit install() called successfully');
+            } else {
+                console.log('MiniKit install() method not found - may already be installed');
+            }
+            
+            // Check if MiniKit is properly installed
+            if (typeof window.MiniKit.isInstalled === 'function') {
+                const isInstalled = window.MiniKit.isInstalled();
+                console.log('MiniKit installation status:', isInstalled);
+            }
+            
+            // Update UI to show ready state
+            this.updateVerificationStatus('Ready to verify your World ID', '🔐');
         } catch (error) {
-            console.error('Failed to initialize IDKit:', error);
+            console.error('Failed to initialize MiniKit:', error);
             this.showError('Failed to initialize World ID. Please refresh the page.');
         }
     }
 
-    openWorldIdVerification() {
+    async openWorldIdVerification() {
         try {
+            // Check if MiniKit is available
+            if (typeof window.MiniKit === 'undefined') {
+                this.showError('This app must be opened in World App to verify your World ID.');
+                return;
+            }
+
+            // Check if MiniKit is installed
+            if (!window.MiniKit.isInstalled()) {
+                this.showError('World App is required for verification. Please open this app in World App.');
+                return;
+            }
+
             this.updateVerificationStatus('Connecting to World ID...', '🔄');
-            window.IDKit.open();
+
+            // Prepare verification payload for MiniKit
+            const verifyPayload = {
+                action: this.config.action,
+                verification_level: this.config.verification_level,
+                signal: '' // Optional additional data
+            };
+
+            console.log('Starting World ID verification with payload:', verifyPayload);
+
+            // Use MiniKit's verify command
+            const response = await window.MiniKit.commandsAsync.verify(verifyPayload);
+            const { finalPayload } = response;
+            
+            if (finalPayload.status === 'error') {
+                console.error('Verification error:', finalPayload);
+                this.handleError(finalPayload);
+                return;
+            }
+
+            if (finalPayload.status === 'success') {
+                console.log('Verification successful:', finalPayload);
+                this.handleSuccess(finalPayload);
+            }
+
         } catch (error) {
             console.error('Failed to open World ID verification:', error);
-            this.showError('Failed to open World ID verification. Please try again.');
-        }
-    }
-
-    async handleVerify(result) {
-        // This function is called to verify the proof on your backend
-        // For demo purposes, we'll simulate a successful verification
-        // In production, you should verify the proof on your backend server
-        
-        try {
-            this.updateVerificationStatus('Verifying proof...', '⏳');
             
-            // Simulate API call delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            // In production, make an actual API call to your backend:
-            /*
-            const response = await fetch('/api/verify-worldid', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(result)
-            });
-            
-            if (!response.ok) {
-                throw new Error('Verification failed');
+            // More specific error handling
+            if (error.message && error.message.includes('MiniKit')) {
+                this.showError('MiniKit error: Please ensure you are using the latest version of World App.');
+            } else if (error.message && error.message.includes('verify')) {
+                this.showError('Verification failed: Please check your app configuration.');
+            } else {
+                this.showError(`Failed to open World ID verification: ${error.message || 'Unknown error'}`);
             }
-            
-            const verificationResult = await response.json();
-            if (!verificationResult.success) {
-                throw new Error('Invalid proof');
-            }
-            */
-            
-            return true; // Return true if verification succeeds
-        } catch (error) {
-            console.error('Verification failed:', error);
-            throw new Error('Failed to verify World ID proof');
         }
     }
 
@@ -152,8 +173,8 @@ class WorldIdAuth {
         console.error('World ID verification error:', error);
         let errorMessage = 'Verification failed. Please try again.';
         
-        if (error.code) {
-            switch (error.code) {
+        if (error.error_code) {
+            switch (error.error_code) {
                 case 'already_signed':
                     errorMessage = 'You have already verified for this action.';
                     break;
@@ -163,8 +184,11 @@ class WorldIdAuth {
                 case 'verification_rejected':
                     errorMessage = 'Verification was rejected or cancelled.';
                     break;
+                case 'user_cancelled':
+                    errorMessage = 'Verification was cancelled.';
+                    break;
                 default:
-                    errorMessage = error.detail || errorMessage;
+                    errorMessage = error.error_message || errorMessage;
             }
         }
         
@@ -175,7 +199,7 @@ class WorldIdAuth {
         // Extract a user-friendly identifier from the World ID data
         // Using nullifier_hash as the unique identifier for the player
         if (worldIdData.nullifier_hash) {
-            // Take first 8 characters of the nullifier hash for display
+            // Take first 12 characters of the nullifier hash for display
             return worldIdData.nullifier_hash.substring(0, 12);
         }
         return 'Unknown';

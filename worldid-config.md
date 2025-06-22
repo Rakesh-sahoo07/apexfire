@@ -1,13 +1,14 @@
-# World ID Configuration Guide
+# World ID Configuration Guide for Mini Apps
 
 ## Setup Instructions
 
-### 1. Create a World ID App
+### 1. Create a World ID Mini App
 
 1. Go to the [World ID Developer Portal](https://developer.worldcoin.org/)
 2. Sign up or log in to your account
 3. Click "Create New App"
-4. Fill in your app details:
+4. **Important**: Choose **"Mini App"** as the integration type (not External)
+5. Fill in your app details:
    - **App Name**: ApexFire (or your preferred name)
    - **App Description**: Human-only gaming with World ID verification
    - **Environment**: Choose "Staging" for testing, "Production" for live deployment
@@ -16,13 +17,14 @@
 
 After creating your app, you'll get an **App ID** that looks like: `app_staging_12345abcdef`
 
-### 3. Create an Action
+### 3. Create an Incognito Action
 
 1. In your app dashboard, go to "Actions"
 2. Click "Create Action"
-3. Set up the action:
+3. Set up the incognito action:
    - **Action Name**: `login`
    - **Description**: Login to ApexFire game
+   - **Action Type**: Incognito Action
    - **Max Verifications**: Unlimited (for login purposes)
 
 ### 4. Update Configuration
@@ -46,9 +48,14 @@ For your game, start with `device` level verification for easier testing.
 
 ### 6. Testing
 
+**Important**: This mini app must be opened inside the World App to work properly.
+
 1. Download the World App on your mobile device
 2. Create a World ID (if you haven't already)
-3. Open your game and test the World ID verification flow
+3. **Open your game URL inside the World App** (not in a regular browser)
+4. Test the World ID verification flow
+
+**Note**: The verification will only work when running inside the World App as a mini app. Regular browsers will show an error.
 
 ### 7. Production Deployment
 

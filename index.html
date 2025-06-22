@@ -220,7 +220,16 @@
 
     <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="https://unpkg.com/@worldcoin/idkit-standalone@latest/dist/idkit.umd.js"></script>
+    <script src="https://unpkg.com/@worldcoin/minikit-js@latest/dist/minikit.umd.js"></script>
+    <script>
+        // Initialize MiniKit when the script loads
+        if (typeof window.MiniKit !== 'undefined') {
+            window.MiniKit.install();
+            console.log('MiniKit installed successfully');
+        } else {
+            console.log('MiniKit not available - may not be running in World App');
+        }
+    </script>
     <script src="js/audioManager.js"></script>
     <script src="js/networkManager.js"></script>
     <script src="js/game.js"></script>
