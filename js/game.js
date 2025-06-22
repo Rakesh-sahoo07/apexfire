@@ -36,7 +36,9 @@ class GameEngine {
         this.maxKillFeedItems = 5;
         
         // Game timer
-        this.gameLength = 300000; // 5 minutes in milliseconds
+        this.gameLength = 60000; // 1 minute in milliseconds
+        this.timeRemaining = this.gameLength; // Track remaining time
+        this.timerElement = document.getElementById('gameTimer');
         
         // Visual effects
         this.muzzleFlashes = [];
@@ -370,7 +372,71 @@ class GameEngine {
     }
     
     setupUI() {
+        // Setup leaderboard toggle functionality
+        this.setupLeaderboardToggle();
+    }
+
+    setupLeaderboardToggle() {
+        const leaderboardToggle = document.getElementById('leaderboardToggle');
+        const leaderboardClose = document.getElementById('leaderboardClose');
+        const leaderboard = document.getElementById('leaderboard');
+        
+        // Toggle leaderboard visibility
+        leaderboardToggle.addEventListener('click', () => {
+            this.toggleLeaderboard();
+        });
+        
+        // Close leaderboard
+        leaderboardClose.addEventListener('click', () => {
+            this.hideLeaderboard();
+        });
+        
+        // Close leaderboard when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!leaderboard.contains(e.target) && !leaderboardToggle.contains(e.target)) {
+                if (leaderboard.classList.contains('show')) {
+                    this.hideLeaderboard();
+                }
+            }
+        });
+    }
+
+    toggleLeaderboard() {
+        const leaderboard = document.getElementById('leaderboard');
+        const toggle = document.getElementById('leaderboardToggle');
+        
+        if (leaderboard.classList.contains('show')) {
+            this.hideLeaderboard();
+        } else {
+            this.showLeaderboard();
+        }
+    }
+
+    showLeaderboard() {
+        const leaderboard = document.getElementById('leaderboard');
+        const toggle = document.getElementById('leaderboardToggle');
+        
+        leaderboard.classList.remove('hidden');
+        leaderboard.classList.add('show');
+        toggle.classList.add('active');
+        
+        // Update leaderboard content when showing
         this.updateLeaderboard();
+    }
+
+    hideLeaderboard() {
+        const leaderboard = document.getElementById('leaderboard');
+        const toggle = document.getElementById('leaderboardToggle');
+        
+        leaderboard.classList.remove('show');
+        toggle.classList.remove('active');
+        
+        // Add hidden class after animation completes
+        setTimeout(() => {
+            if (!leaderboard.classList.contains('show')) {
+                leaderboard.classList.add('hidden');
+            }
+        }, 400);
     }
     
     generateMap() {
@@ -521,7 +587,10 @@ class GameEngine {
     
     update(deltaTime) {
         if (!this.myPlayer) return;
-        
+
+        // Update game timer
+        this.updateGameTimer(deltaTime);
+
         // Update player movement from controls
         if (this.myPlayer.health > 0) {
             const moveInput = this.controls.getMoveInput();
@@ -546,7 +615,7 @@ class GameEngine {
             
             // Track if collision correction occurred
             let collisionCorrected = false;
-            
+                 
             // Check collision with obstacles
             if (this.checkObstacleCollision(testPlayer)) {
                 // Try moving only horizontally
@@ -607,7 +676,7 @@ class GameEngine {
                 this.lastSentVy = this.myPlayer.vy;
             }
         }
-        
+            
         // Update my player (no AI update) but handle collision properly
         const beforeUpdateX = this.myPlayer.x;
         const beforeUpdateY = this.myPlayer.y;
@@ -616,7 +685,7 @@ class GameEngine {
             width: this.mapWidth,
             height: this.mapHeight
         });
-        
+
         // Check if the player moved into an obstacle after the update
         if (this.checkObstacleCollision(this.myPlayer)) {
             // Revert to previous position and stop movement
@@ -646,23 +715,71 @@ class GameEngine {
                 height: this.mapHeight
             });
         });
-        
+
         // Update bullets
         this.updateBullets(deltaTime);
         
         // Update muzzle flashes
         this.updateMuzzleFlashes();
-        
+
         // Update camera
         this.updateCamera();
-        
+
         // Update UI
         this.updateUI();
-        
+
         // Update controls (for auto-fire feature)
         if (this.controls) {
             this.controls.update();
         }
+    }
+    
+    updateGameTimer(deltaTime) {
+        if (this.gameStartTime) {
+            const elapsed = Date.now() - this.gameStartTime;
+            this.timeRemaining = Math.max(0, this.gameLength - elapsed);
+            
+            // Update timer display
+            const minutes = Math.floor(this.timeRemaining / 60000);
+            const seconds = Math.floor((this.timeRemaining % 60000) / 1000);
+            const timerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (this.timerElement) {
+                this.timerElement.textContent = timerText;
+                
+                // Add visual warnings based on time remaining
+                this.timerElement.classList.remove('warning', 'critical');
+                if (this.timeRemaining <= 10000) { // Last 10 seconds
+                    this.timerElement.classList.add('critical');
+                } else if (this.timeRemaining <= 20000) { // Last 20 seconds
+                    this.timerElement.classList.add('warning');
+                }
+            }
+            
+            // End game when time runs out
+            if (this.timeRemaining <= 0) {
+                this.endGame();
+            }
+        }
+    }
+
+    // Linear interpolation helper
+    lerp(a, b, t) {
+        return a + (b - a) * t;
+    }
+
+    // Angle interpolation (handles wrapping around 2π)
+    lerpAngle(a, b, t) {
+        let diff = b - a;
+        if (diff > Math.PI) diff -= 2 * Math.PI;
+        if (diff < -Math.PI) diff += 2 * Math.PI;
+        return a + diff * t;
+    }
+
+    // Send network update at controlled rate
+    sendNetworkUpdate() {
+        // This method is called from the original update function
+        // Network updates are already handled in the player movement section
     }
     
     updateBullets(deltaTime) {
@@ -744,8 +861,8 @@ class GameEngine {
         // Update kills
         document.getElementById('killCount').textContent = this.myPlayer.kills;
         
-        // Update leaderboard periodically
-        if (Date.now() % 1000 < 50) { // Update roughly every second
+        // Update leaderboard periodically when visible
+        if (Date.now() % 500 < 50) { // Update every 500ms for real-time feel
             this.updateLeaderboard();
         }
     }
@@ -753,25 +870,49 @@ class GameEngine {
     updateLeaderboard() {
         const leaderboardList = document.getElementById('leaderboardList');
         
+        // Only update if leaderboard is visible to save performance
+        if (!document.getElementById('leaderboard').classList.contains('show')) {
+            return;
+        }
+        
         // Collect all players
         const allPlayers = [];
         if (this.myPlayer) allPlayers.push(this.myPlayer);
         this.networkPlayers.forEach(player => allPlayers.push(player));
         
-        // Sort players by score
-        const sortedPlayers = allPlayers.sort((a, b) => b.score - a.score);
+        // Sort players by kills first, then by K/D ratio
+        const sortedPlayers = allPlayers.sort((a, b) => {
+            if (b.kills !== a.kills) {
+                return b.kills - a.kills;
+            }
+            // If kills are equal, sort by K/D ratio
+            const aKD = a.deaths === 0 ? a.kills : a.kills / a.deaths;
+            const bKD = b.deaths === 0 ? b.kills : b.kills / b.deaths;
+            return bKD - aKD;
+        });
         
         leaderboardList.innerHTML = '';
         sortedPlayers.forEach((player, index) => {
             const item = document.createElement('div');
             item.className = 'leaderboard-item';
+            
+            // Highlight current player
             if (player.id === window.networkManager.playerId) {
-                item.style.backgroundColor = 'rgba(78, 205, 196, 0.3)';
+                item.classList.add('current-player');
             }
+            
+            // Calculate K/D ratio
+            const kdRatio = player.deaths === 0 ? 
+                (player.kills === 0 ? '0.00' : player.kills.toFixed(2)) : 
+                (player.kills / player.deaths).toFixed(2);
+            
             item.innerHTML = `
-                <span>${index + 1}. ${player.name}</span>
-                <span>${player.kills}</span>
+                <span class="player-name">${player.name}</span>
+                <span class="stat-kills">${player.kills}</span>
+                <span class="stat-deaths">${player.deaths}</span>
+                <span class="stat-kd">${kdRatio}</span>
             `;
+            
             leaderboardList.appendChild(item);
         });
     }

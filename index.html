@@ -69,12 +69,17 @@
                     <div class="health-fill" id="healthFill"></div>
                     <span class="health-text" id="healthText">100</span>
                 </div>
+                <!-- Game Timer -->
+                <div class="game-timer">
+                    <span id="gameTimer">1:00</span>
+                </div>
                 <div class="score-info">
                     <span id="killCount">0</span> Kills
                 </div>
                 <div class="ammo-info">
                     <span id="ammoCount">30</span> / <span id="ammoReserve">120</span>
                 </div>
+                <button class="leaderboard-toggle" id="leaderboardToggle">🏆</button>
                 <button class="sound-toggle" id="soundToggle">🔊</button>
             </div>
 
@@ -82,9 +87,20 @@
             <div class="kill-feed" id="killFeed"></div>
 
             <!-- Leaderboard -->
-            <div class="leaderboard" id="leaderboard">
-                <h3>Leaderboard</h3>
-                <div class="leaderboard-list" id="leaderboardList"></div>
+            <div class="leaderboard hidden" id="leaderboard">
+                <div class="leaderboard-header">
+                    <h3>🏆 Leaderboard</h3>
+                    <button class="leaderboard-close" id="leaderboardClose">✕</button>
+                </div>
+                <div class="leaderboard-content">
+                    <div class="leaderboard-headers">
+                        <span class="header-name">Player</span>
+                        <span class="header-kills">K</span>
+                        <span class="header-deaths">D</span>
+                        <span class="header-kd">K/D</span>
+                    </div>
+                    <div class="leaderboard-list" id="leaderboardList"></div>
+                </div>
             </div>
 
             <!-- Mobile Controls -->

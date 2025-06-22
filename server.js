@@ -32,7 +32,7 @@ class GameRoom {
         this.maxPlayers = 6;
         this.gameStartTime = null;
         this.matchmakingTimer = null;
-        this.gameLength = 300000; // 5 minutes
+        this.gameLength = 60000; // 1 minute
         this.bullets = [];
         this.mapWidth = 1200;
         this.mapHeight = 800;
@@ -104,7 +104,7 @@ class GameRoom {
             if (this.gameState === 'waiting' && this.players.size >= 2) {
                 this.startGame();
             }
-        }, 60000); // 1 minute timeout
+        }, 30000); // 30 seconds timeout
     }
 
     startGame() {
