@@ -14,8 +14,64 @@
         <p>This game is optimized for landscape mode. Please rotate your device horizontally for the best experience.</p>
     </div>
 
+    <!-- World ID Login Screen -->
+    <div id="worldIdLogin" class="screen active">
+        <div class="world-id-container">
+            <div class="world-id-content">
+                <div class="world-id-header">
+                    <h1 class="game-title">ApexFire</h1>
+                    <div class="world-id-logo">🌍</div>
+                    <h2>Human-Only Gaming</h2>
+                    <p class="world-id-description">
+                        Verify your humanity with World ID to access our bot-free gaming environment.
+                        Only verified humans can play ApexFire.
+                    </p>
+                </div>
+                
+                <div class="world-id-verification">
+                    <div class="verification-status" id="verificationStatus">
+                        <div class="status-icon">🔐</div>
+                        <p>Ready to verify your World ID</p>
+                    </div>
+                    
+                    <button id="worldIdVerifyBtn" class="world-id-button">
+                        <span class="button-icon">🌍</span>
+                        Verify with World ID
+                    </button>
+                    
+                    <div class="world-id-info">
+                        <p class="info-text">
+                            <strong>What is World ID?</strong><br>
+                            World ID is a privacy-preserving proof of personhood protocol that ensures you're a unique human without revealing your identity.
+                        </p>
+                        <div class="info-links">
+                            <a href="https://world.org/world-id" target="_blank" rel="noopener noreferrer">Learn More</a>
+                            <span>•</span>
+                            <a href="https://apps.apple.com/app/world-app-worldcoin-wallet/id1560859847" target="_blank" rel="noopener noreferrer">Get World App</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="world-id-features">
+                    <div class="feature">
+                        <span class="feature-icon">🛡️</span>
+                        <span>Bot Protection</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🔒</span>
+                        <span>Privacy First</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">👥</span>
+                        <span>Human-Only Matches</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Lobby Screen -->
-    <div id="lobby" class="screen active">
+    <div id="lobby" class="screen">
         <div class="lobby-container">
             <div class="lobby-left">
                 <h1 class="game-title">ApexFire</h1>
@@ -24,6 +80,17 @@
                     <p>• 6 players per room</p>
                     <p>• AK47 weapon available</p>
                     <p>• Landscape mode optimized</p>
+                    <p>• Human-verified players only 🌍</p>
+                </div>
+                <div class="world-id-player-info">
+                    <div class="verified-badge">
+                        <span class="badge-icon">✅</span>
+                        <span>Verified Human</span>
+                    </div>
+                    <div class="player-world-id">
+                        <span class="world-id-label">World ID:</span>
+                        <span class="world-id-display" id="playerWorldId">Loading...</span>
+                    </div>
                 </div>
             </div>
             <div class="lobby-right">
@@ -45,6 +112,7 @@
                     </div>
                 </div>
                 <button id="playButton" class="play-button">PLAY</button>
+                <button id="logoutButton" class="logout-button">Logout</button>
             </div>
         </div>
     </div>
@@ -150,12 +218,15 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://unpkg.com/@worldcoin/idkit-standalone@latest/dist/idkit.umd.js"></script>
     <script src="js/audioManager.js"></script>
     <script src="js/networkManager.js"></script>
     <script src="js/game.js"></script>
     <script src="js/player.js"></script>
     <script src="js/controls.js"></script>
+    <script src="js/worldIdAuth.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html> 

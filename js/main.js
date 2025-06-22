@@ -47,8 +47,9 @@ class NameGenerator {
 // Main game controller
 class GameController {
     constructor() {
-        this.currentScreen = 'lobby';
+        this.currentScreen = 'worldIdLogin';
         this.playerName = NameGenerator.generateUnique(); // Generate unique random name
+        this.worldIdPlayerName = null; // Will be set by World ID auth
         this.gameInstance = null;
         this.init();
     }
@@ -56,27 +57,50 @@ class GameController {
     init() {
         this.setupEventListeners();
         this.setupNetworkListeners();
-        this.showScreen('lobby');
+        // Don't show lobby initially - World ID auth will handle this
         this.updateStats();
         
         // Set the generated random name in the input field (show only base name)
         const baseName = this.playerName.split('#')[0];
-        document.getElementById('playerName').value = baseName;
+        const playerNameInput = document.getElementById('playerName');
+        if (playerNameInput) {
+            playerNameInput.value = baseName;
+        }
+    }
+
+    // Method to be called by World ID auth when user is authenticated
+    setPlayerWorldId(worldId) {
+        this.worldIdPlayerName = worldId;
+        // Use World ID as the primary player identifier
+        this.playerName = `WorldID_${worldId}`;
+        console.log('Player World ID set:', this.worldIdPlayerName);
     }
 
     setupEventListeners() {
         // Play button
-        document.getElementById('playButton').addEventListener('click', () => {
-            const inputName = document.getElementById('playerName').value.trim();
-            if (inputName) {
-                // User entered a custom name, make it unique
-                this.playerName = NameGenerator.makeUnique(inputName);
-            } else {
-                // Generate a completely new unique name
-                this.playerName = NameGenerator.generateUnique();
-            }
-            this.startMatchmaking();
-        });
+        const playButton = document.getElementById('playButton');
+        if (playButton) {
+            playButton.addEventListener('click', () => {
+                // Check if user is authenticated with World ID
+                if (!window.worldIdAuth || !window.worldIdAuth.isUserAuthenticated()) {
+                    alert('Please verify with World ID first!');
+                    return;
+                }
+
+                const inputName = document.getElementById('playerName').value.trim();
+                if (inputName && this.worldIdPlayerName) {
+                    // Combine custom name with World ID
+                    this.playerName = `${inputName}_${this.worldIdPlayerName}`;
+                } else if (this.worldIdPlayerName) {
+                    // Use World ID as player name
+                    this.playerName = `Player_${this.worldIdPlayerName}`;
+                } else {
+                    // Fallback (shouldn't happen if World ID is required)
+                    this.playerName = NameGenerator.generateUnique();
+                }
+                this.startMatchmaking();
+            });
+        }
 
         // Play again button
         document.getElementById('playAgainButton').addEventListener('click', () => {
