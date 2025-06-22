@@ -57,7 +57,9 @@ class GameController {
     init() {
         this.setupEventListeners();
         this.setupNetworkListeners();
-        // Don't show lobby initially - World ID auth will handle this
+        
+        // Show World ID login screen first
+        this.showScreen('worldIdLogin');
         this.updateStats();
         
         // Set the generated random name in the input field (show only base name)

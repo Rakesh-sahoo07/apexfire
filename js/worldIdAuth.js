@@ -211,21 +211,21 @@ class WorldIdAuth {
     }
 
     showLobby() {
-        // Hide World ID login screen
-        document.getElementById('worldIdLogin').classList.remove('active');
-        
-        // Show lobby screen
-        document.getElementById('lobby').classList.add('active');
+        // Update the game controller to use World ID as player name
+        if (window.gameController) {
+            window.gameController.setPlayerWorldId(this.playerWorldId);
+            // Use the game controller's showScreen method to properly manage screens
+            window.gameController.showScreen('lobby');
+        } else {
+            // Fallback if game controller isn't available
+            document.getElementById('worldIdLogin').classList.remove('active');
+            document.getElementById('lobby').classList.add('active');
+        }
         
         // Update player World ID display in lobby
         const worldIdDisplay = document.getElementById('playerWorldId');
         if (worldIdDisplay && this.playerWorldId) {
             worldIdDisplay.textContent = this.playerWorldId;
-        }
-        
-        // Update the game controller to use World ID as player name
-        if (window.gameController) {
-            window.gameController.setPlayerWorldId(this.playerWorldId);
         }
     }
 
@@ -236,9 +236,14 @@ class WorldIdAuth {
         this.playerWorldId = null;
         localStorage.removeItem('worldid_auth');
         
-        // Hide lobby and show login screen
-        document.getElementById('lobby').classList.remove('active');
-        document.getElementById('worldIdLogin').classList.add('active');
+        // Use game controller to manage screen transition
+        if (window.gameController) {
+            window.gameController.showScreen('worldIdLogin');
+        } else {
+            // Fallback if game controller isn't available
+            document.getElementById('lobby').classList.remove('active');
+            document.getElementById('worldIdLogin').classList.add('active');
+        }
         
         // Reset verification status
         this.updateVerificationStatus('Ready to verify your World ID', '🔐');
@@ -262,7 +267,10 @@ class WorldIdAuth {
 
 // Initialize World ID Authentication when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.worldIdAuth = new WorldIdAuth();
+    // Add a small delay to ensure game controller is ready
+    setTimeout(() => {
+        window.worldIdAuth = new WorldIdAuth();
+    }, 100);
 });
 
 // Export for use in other modules

@@ -1222,8 +1222,9 @@ body {
         display: none !important;
     }
     
+    /* Keep normal screen behavior - only active screen shows */
     .screen {
-        display: flex !important;
+        display: none;
     }
     
     .screen.active {
