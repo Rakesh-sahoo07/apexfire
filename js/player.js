@@ -66,13 +66,13 @@ class Player {
             this.x += this.vx;
             this.y += this.vy;
             
-            // Apply friction
-            this.vx *= 0.9;
-            this.vy *= 0.9;
+            // Apply smooth friction with better damping
+            this.vx *= 0.92;
+            this.vy *= 0.92;
             
-            // Stop very small movements to prevent jitter
-            if (Math.abs(this.vx) < 0.01) this.vx = 0;
-            if (Math.abs(this.vy) < 0.01) this.vy = 0;
+            // Stop very small movements to prevent jitter with larger threshold
+            if (Math.abs(this.vx) < 0.05) this.vx = 0;
+            if (Math.abs(this.vy) < 0.05) this.vy = 0;
         } else if (this.isNetworkPlayer) {
             // Advanced interpolation and prediction for network players
             if (this.targetX !== undefined && this.targetY !== undefined) {
@@ -112,9 +112,11 @@ class Player {
             }
         }
         
-        // Keep player in bounds
-        this.x = Math.max(this.size, Math.min(mapBounds.width - this.size, this.x));
-        this.y = Math.max(this.size, Math.min(mapBounds.height - this.size, this.y));
+        // Keep player in bounds (but only for main player to avoid conflicts)
+        if (this.isMainPlayer) {
+            this.x = Math.max(this.size, Math.min(mapBounds.width - this.size, this.x));
+            this.y = Math.max(this.size, Math.min(mapBounds.height - this.size, this.y));
+        }
         
         // Update reload
         if (this.isReloading) {
@@ -196,18 +198,18 @@ class Player {
         
         // If no input, apply friction faster to stop movement
         if (dx === 0 && dy === 0) {
-            this.vx *= 0.8;
-            this.vy *= 0.8;
+            this.vx *= 0.85;
+            this.vy *= 0.85;
             return;
         }
         
-        // Apply movement input with responsive acceleration
-        const acceleration = 0.4;
+        // Apply movement input with smoother acceleration
+        const acceleration = 0.3; // Reduced from 0.4 for less jittery movement
         this.vx += dx * this.speed * acceleration;
         this.vy += dy * this.speed * acceleration;
         
-        // Limit velocity
-        const maxVel = this.speed;
+        // Limit velocity with slight buffer to prevent constant clamping
+        const maxVel = this.speed * 0.95;
         const vel = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
         if (vel > maxVel) {
             this.vx = (this.vx / vel) * maxVel;
@@ -295,7 +297,7 @@ class Player {
             window.audioManager.playReload();
         }
         
-        console.log('Auto-reloading... will complete in 3 seconds');
+        
     }
     
     completeAutoReload() {
@@ -306,7 +308,7 @@ class Player {
             this.ammo += ammoToReload;
             this.reserveAmmo -= ammoToReload;
             
-            console.log('Auto-reload completed!');
+           
         }
         this.cancelAutoReload();
     }

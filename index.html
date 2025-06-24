@@ -25,6 +25,7 @@
                     <p>• AK47 weapon available</p>
                     <p>• Portrait mode optimized</p>
                     <p>• Fast-paced action gameplay</p>
+                    <p class="tutorial-preview">🎮 <strong>New?</strong> We'll show you the controls!</p>
                 </div>
             </div>
             <div class="lobby-right">
@@ -58,6 +59,10 @@
                 <div class="loading-progress"></div>
             </div>
             <p>Players: <span id="loadingPlayers">1/6</span></p>
+            <!-- <div class="loading-tutorial-hint" id="loadingTutorialHint">
+                <p>🎮 <strong>New player?</strong> Tutorial will appear in a moment!</p>
+                <p class="hint-subtext">Perfect time to learn the controls while waiting</p>
+            </div> -->
         </div>
     </div>
 
@@ -85,6 +90,7 @@
                 </div>
                 <button class="leaderboard-toggle" id="leaderboardToggle">🏆</button>
                 <button class="sound-toggle" id="soundToggle">🔊</button>
+                <button class="help-toggle" id="helpToggle" title="Show Tutorial">❓</button>
             </div>
 
             <!-- Kill Feed -->
@@ -123,6 +129,150 @@
                 <div class="action-buttons">
                     <button class="action-btn shoot-btn" id="shootBtn">🔥</button>
                     <button class="action-btn reload-btn" id="reloadBtn">🔄</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Overlay - Moved outside game screen to work on all screens -->
+    <div class="tutorial-overlay" id="tutorialOverlay">
+        <div class="tutorial-container">
+            <div class="tutorial-content" id="tutorialContent">
+                <!-- Tutorial Step 1: Welcome -->
+                <div class="tutorial-step active" data-step="1">
+                    <div class="tutorial-header">
+                        <h2>🎮 Welcome to ApexFire!</h2>
+                        <div class="tutorial-progress">
+                            <span class="current-step">1</span> / <span class="total-steps">5</span>
+                        </div>
+                    </div>
+                    <div class="tutorial-body">
+                        <div class="tutorial-icon">👋</div>
+                        <p>Let's learn the basics in just 10 seconds!</p>
+                        <p class="tutorial-subtitle">This quick guide will show you everything you need to dominate the battlefield.</p>
+                    </div>
+                    <div class="tutorial-footer">
+                        <button class="tutorial-btn primary" id="tutorialNext">Start Tutorial</button>
+                        <button class="tutorial-btn secondary" id="tutorialSkip">Skip</button>
+                    </div>
+                </div>
+
+                <!-- Tutorial Step 2: Movement -->
+                <div class="tutorial-step" data-step="2">
+                    <div class="tutorial-header">
+                        <h2>🚶 Movement Controls</h2>
+                        <div class="tutorial-progress">
+                            <span class="current-step">2</span> / <span class="total-steps">5</span>
+                        </div>
+                    </div>
+                    <div class="tutorial-body">
+                        <div class="tutorial-visual">
+                            <div class="joystick-demo left-demo">
+                                <div class="joystick-demo-container">
+                                    <div class="joystick-demo-knob"></div>
+                                    <div class="demo-arrows">
+                                        <div class="demo-arrow up">↑</div>
+                                        <div class="demo-arrow down">↓</div>
+                                        <div class="demo-arrow left">←</div>
+                                        <div class="demo-arrow right">→</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><strong>Left Joystick:</strong> Use your left thumb to move around</p>
+                        <p class="tutorial-subtitle">• Push up/down/left/right to move in any direction<br>• The further you push, the faster you move!</p>
+                    </div>
+                    <div class="tutorial-footer">
+                        <button class="tutorial-btn secondary" id="tutorialPrev">Back</button>
+                        <button class="tutorial-btn primary" id="tutorialNext">Next</button>
+                    </div>
+                </div>
+
+                <!-- Tutorial Step 3: Aiming & Rotation -->
+                <div class="tutorial-step" data-step="3">
+                    <div class="tutorial-header">
+                        <h2>🎯 Aiming & Rotation</h2>
+                        <div class="tutorial-progress">
+                            <span class="current-step">3</span> / <span class="total-steps">5</span>
+                        </div>
+                    </div>
+                    <div class="tutorial-body">
+                        <div class="tutorial-visual">
+                            <div class="joystick-demo right-demo">
+                                <div class="joystick-demo-container">
+                                    <div class="joystick-demo-knob rotating"></div>
+                                    <div class="crosshair-demo">+</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><strong>Right Joystick:</strong> Control your aim and direction</p>
+                        <p class="tutorial-subtitle">• Move to rotate your player and weapon<br>• Point where you want to shoot!</p>
+                    </div>
+                    <div class="tutorial-footer">
+                        <button class="tutorial-btn secondary" id="tutorialPrev">Back</button>
+                        <button class="tutorial-btn primary" id="tutorialNext">Next</button>
+                    </div>
+                </div>
+
+                <!-- Tutorial Step 4: Auto-Fire Feature -->
+                <div class="tutorial-step" data-step="4">
+                    <div class="tutorial-header">
+                        <h2>🔥 Auto-Fire Feature</h2>
+                        <div class="tutorial-progress">
+                            <span class="current-step">4</span> / <span class="total-steps">5</span>
+                        </div>
+                    </div>
+                    <div class="tutorial-body">
+                        <div class="tutorial-visual">
+                            <div class="auto-fire-demo">
+                                <div class="joystick-demo-container auto-fire-container">
+                                    <div class="joystick-demo-knob auto-fire-knob"></div>
+                                    <div class="fire-effects">
+                                        <div class="fire-effect">💥</div>
+                                        <div class="fire-effect fire-2">🔥</div>
+                                        <div class="fire-effect fire-3">✨</div>
+                                    </div>
+                                    <div class="threshold-indicator">85%</div>
+                                </div>
+                                <div class="auto-fire-instruction">
+                                    <span class="instruction-step step-1">1. Move to edge</span>
+                                    <span class="instruction-step step-2">2. Turns red</span>
+                                    <span class="instruction-step step-3">3. Auto-fire!</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p><strong>Pro Tip:</strong> Push the right joystick to the edge!</p>
+                        <p class="tutorial-subtitle">• Move the white circle to the outer edge<br>• It will turn RED when auto-fire activates<br>• Keep it pushed for continuous shooting!</p>
+                    </div>
+                    <div class="tutorial-footer">
+                        <button class="tutorial-btn secondary" id="tutorialPrev">Back</button>
+                        <button class="tutorial-btn primary" id="tutorialNext">Next</button>
+                    </div>
+                </div>
+
+                <!-- Tutorial Step 5: Action Buttons -->
+                <div class="tutorial-step" data-step="5">
+                    <div class="tutorial-header">
+                        <h2>⚡ Action Buttons</h2>
+                        <div class="tutorial-progress">
+                            <span class="current-step">5</span> / <span class="total-steps">5</span>
+                        </div>
+                    </div>
+                    <div class="tutorial-body">
+                        <div class="tutorial-visual">
+                            <div class="buttons-demo">
+                                <div class="demo-button shoot-demo">🔥</div>
+                                <div class="demo-button reload-demo">🔄</div>
+                            </div>
+                        </div>
+                        <p><strong>🔥 Shoot Button:</strong> Manual fire when needed</p>
+                        <p><strong>🔄 Reload Button:</strong> Reload your weapon</p>
+                        <p class="tutorial-subtitle">• Shoot button works alongside auto-fire<br>• Reload when ammo runs low<br>• Watch your ammo counter at the top!</p>
+                    </div>
+                    <div class="tutorial-footer">
+                        <button class="tutorial-btn secondary" id="tutorialPrev">Back</button>
+                        <button class="tutorial-btn primary" id="tutorialStart">Start Game!</button>
+                    </div>
                 </div>
             </div>
         </div>

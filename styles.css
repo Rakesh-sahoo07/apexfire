@@ -220,10 +220,6 @@ body {
     transform: translateY(0);
 }
 
-
-
-
-
 .game-info {
     text-align: left;
     opacity: 0.8;
@@ -231,7 +227,24 @@ body {
 }
 
 .game-info p {
-    margin: 5px 0;
+    margin: 8px 0;
+    color: rgba(255,255,255,0.9);
+}
+
+.tutorial-preview {
+    color: #4ecdc4 !important;
+    font-size: 0.95rem !important;
+    margin-top: 15px !important;
+    padding: 10px !important;
+    background: rgba(78, 205, 196, 0.1) !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(78, 205, 196, 0.3) !important;
+    animation: tutorialGlow 3s ease-in-out infinite alternate !important;
+}
+
+@keyframes tutorialGlow {
+    0% { box-shadow: 0 0 5px rgba(78, 205, 196, 0.3); }
+    100% { box-shadow: 0 0 15px rgba(78, 205, 196, 0.6); }
 }
 
 /* Loading Screen */
@@ -266,6 +279,39 @@ body {
     0% { width: 0%; }
     50% { width: 70%; }
     100% { width: 100%; }
+}
+
+.loading-tutorial-hint {
+    margin-top: 30px;
+    padding: 15px;
+    background: rgba(78, 205, 196, 0.1);
+    border: 1px solid rgba(78, 205, 196, 0.3);
+    border-radius: 10px;
+    text-align: center;
+    animation: fadeInGlow 2s ease-in-out infinite alternate;
+}
+
+.loading-tutorial-hint p {
+    margin: 5px 0;
+    color: #4ecdc4;
+    font-size: 0.9rem;
+}
+
+.loading-tutorial-hint .hint-subtext {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-size: 0.8rem !important;
+    margin-top: 5px !important;
+}
+
+@keyframes fadeInGlow {
+    0% { 
+        opacity: 0.7;
+        box-shadow: 0 0 5px rgba(78, 205, 196, 0.2);
+    }
+    100% { 
+        opacity: 1;
+        box-shadow: 0 0 15px rgba(78, 205, 196, 0.4);
+    }
 }
 
 /* Game Screen */
@@ -345,37 +391,35 @@ body {
     font-size: 0.9rem;
 }
 
-.sound-toggle, .leaderboard-toggle {
-    background: rgba(0,0,0,0.5);
+.sound-toggle, .leaderboard-toggle, .help-toggle {
+    background: rgba(255,255,255,0.1);
     border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
     color: white;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 1.2rem;
     cursor: pointer;
     transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    min-width: 45px;
+    min-height: 45px;
     display: flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    /* Prevent zoom and improve touch */
-    touch-action: manipulation;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
 }
 
-.sound-toggle:hover, .leaderboard-toggle:hover {
-    background: rgba(78, 205, 196, 0.3);
-    transform: scale(1.1);
-    box-shadow: 0 0 20px rgba(78, 205, 196, 0.2);
+.sound-toggle:hover, .leaderboard-toggle:hover, .help-toggle:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.05);
 }
 
-.sound-toggle:active, .leaderboard-toggle:active {
+.sound-toggle:active, .leaderboard-toggle:active, .help-toggle:active {
     transform: scale(0.95);
+}
+
+.help-toggle:hover {
+    background: rgba(78, 205, 196, 0.2) !important;
+    color: #4ecdc4 !important;
 }
 
 .sound-toggle.muted {
@@ -645,7 +689,7 @@ body {
 
 .joystick-container.right {
     left: auto;
-    right: 5dvw;
+    right: 15dvw; /* Moved more inward from 5dvw to 15dvw */
 }
 
 .joystick-knob {
@@ -688,7 +732,7 @@ body {
     position: absolute;
     bottom: 8dvh;
     right: 20dvw;
-    display: flex;
+    display: none; /* Hidden but keeping the logic intact */
     flex-direction: column;
     gap: 3dvh;
 }
@@ -938,7 +982,7 @@ body {
     }
     
     .joystick-container.right {
-        right: 20px;
+        right: 60px; /* Moved more inward from 20px to 60px */
     }
     
     .joystick-knob {
@@ -949,6 +993,7 @@ body {
     .action-buttons {
         bottom: 15px;
         right: 130px;
+        display: none; /* Hidden but keeping the logic intact */
         flex-direction: row;
         gap: 20px;
     }
@@ -1015,8 +1060,6 @@ body {
         padding: 15px;
     }
     
-
-    
     .top-hud {
         flex-wrap: wrap;
         gap: 8px;
@@ -1053,7 +1096,7 @@ body {
     }
     
     .joystick-container.right {
-        right: 4dvw;
+        right: 12dvw; /* Moved more inward from 4dvw to 12dvw */
     }
     
     .joystick-knob {
@@ -1064,6 +1107,7 @@ body {
     .action-buttons {
         bottom: 6dvh;
         right: 23dvw;
+        display: none; /* Hidden but keeping the logic intact */
         flex-direction: column;
         gap: 2.5dvh;
     }
@@ -1150,8 +1194,6 @@ body {
         min-height: 50px;
     }
     
-    
-    
     .play-button {
         min-height: 55px;
         touch-action: manipulation;
@@ -1197,5 +1239,553 @@ body {
     }
     to {
         transform: scale(1.1);
+    }
+}
+
+/* Tutorial Overlay System */
+.tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.tutorial-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.tutorial-container {
+    background: linear-gradient(135deg, #2c5530 0%, #1a332e 100%);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 400px;
+    width: 90%;
+    max-height: 80vh;
+    border: 2px solid #4ecdc4;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.tutorial-container::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #4ecdc4, #00ff00, #4ecdc4);
+    border-radius: 22px;
+    z-index: -1;
+    animation: borderGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes borderGlow {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.tutorial-step {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tutorial-step.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tutorial-header {
+    text-align: center;
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+    padding-bottom: 20px;
+}
+
+.tutorial-header h2 {
+    color: #4ecdc4;
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+}
+
+.tutorial-progress {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.tutorial-progress .current-step {
+    color: #4ecdc4;
+    font-weight: bold;
+}
+
+.tutorial-body {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.tutorial-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+.tutorial-body p {
+    color: white;
+    font-size: 1rem;
+    line-height: 1.4;
+    margin-bottom: 10px;
+}
+
+.tutorial-subtitle {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 0.9rem !important;
+    line-height: 1.5 !important;
+}
+
+.tutorial-visual {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Joystick Demo Styles */
+.joystick-demo {
+    position: relative;
+}
+
+.joystick-demo-container {
+    width: 80px;
+    height: 80px;
+    border: 2px solid #4ecdc4;
+    border-radius: 50%;
+    position: relative;
+    background: rgba(78, 205, 196, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.joystick-demo-knob {
+    width: 30px;
+    height: 30px;
+    background: #4ecdc4;
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(78, 205, 196, 0.7);
+    animation: joystickMove 2s ease-in-out infinite;
+}
+
+.joystick-demo-knob.rotating {
+    animation: joystickRotate 3s linear infinite;
+}
+
+.joystick-demo-knob.pulsing {
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes joystickMove {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(15px, 0); }
+    50% { transform: translate(0, -15px); }
+    75% { transform: translate(-15px, 0); }
+}
+
+@keyframes joystickRotate {
+    0% { transform: translate(0, -20px); }
+    25% { transform: translate(20px, 0); }
+    50% { transform: translate(0, 20px); }
+    75% { transform: translate(-20px, 0); }
+    100% { transform: translate(0, -20px); }
+}
+
+.demo-arrows {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.demo-arrow {
+    position: absolute;
+    color: #4ecdc4;
+    font-size: 1.2rem;
+    font-weight: bold;
+    opacity: 0;
+    animation: arrowPulse 2s ease-in-out infinite;
+}
+
+.demo-arrow.up { top: -40px; left: 50%; transform: translateX(-50%); animation-delay: 0.5s; }
+.demo-arrow.right { right: -40px; top: 50%; transform: translateY(-50%); animation-delay: 1s; }
+.demo-arrow.down { bottom: -40px; left: 50%; transform: translateX(-50%); animation-delay: 1.5s; }
+.demo-arrow.left { left: -40px; top: 50%; transform: translateY(-50%); animation-delay: 0s; }
+
+@keyframes arrowPulse {
+    0%, 90%, 100% { opacity: 0; transform: scale(0.8); }
+    10%, 80% { opacity: 1; transform: scale(1); }
+}
+
+.crosshair-demo {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ff4444;
+    font-size: 1.5rem;
+    animation: crosshairPulse 1s ease-in-out infinite;
+}
+
+@keyframes crosshairPulse {
+    0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+    50% { opacity: 1; transform: translateX(-50%) scale(1.2); }
+}
+
+/* Auto-fire Demo - Enhanced */
+.auto-fire-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.auto-fire-container {
+    position: relative;
+    border-color: #4ecdc4 !important;
+    background: rgba(78, 205, 196, 0.1) !important;
+    box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+    animation: containerPulse 6s ease-in-out infinite;
+}
+
+.auto-fire-knob {
+    width: 30px;
+    height: 30px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+    animation: autoFireSequence 6s ease-in-out infinite;
+    z-index: 2;
+    position: relative;
+}
+
+.threshold-indicator {
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #4ecdc4;
+    font-size: 0.8rem;
+    font-weight: bold;
+    opacity: 0;
+    animation: thresholdShow 6s ease-in-out infinite;
+}
+
+.fire-effects {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.fire-effect {
+    position: absolute;
+    font-size: 1.5rem;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.fire-effect:nth-child(1) {
+    top: -40px;
+    left: -10px;
+    animation: fireEffect1 6s ease-in-out infinite;
+}
+
+.fire-effect.fire-2 {
+    top: -30px;
+    right: -15px;
+    animation: fireEffect2 6s ease-in-out infinite;
+}
+
+.fire-effect.fire-3 {
+    top: -35px;
+    left: 10px;
+    animation: fireEffect3 6s ease-in-out infinite;
+}
+
+.auto-fire-instruction {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+}
+
+.instruction-step {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    padding: 4px 8px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.instruction-step.step-1 {
+    animation: stepHighlight1 6s ease-in-out infinite;
+}
+
+.instruction-step.step-2 {
+    animation: stepHighlight2 6s ease-in-out infinite;
+}
+
+.instruction-step.step-3 {
+    animation: stepHighlight3 6s ease-in-out infinite;
+}
+
+/* Animation Keyframes */
+@keyframes autoFireSequence {
+    0%, 10% { 
+        transform: translate(0, 0); 
+        background: white;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+    }
+    15%, 35% { 
+        transform: translate(20px, -15px); 
+        background: white;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
+    }
+    40%, 65% { 
+        transform: translate(20px, -15px); 
+        background: #ff4444;
+        box-shadow: 0 0 20px rgba(255, 68, 68, 0.9);
+    }
+    70%, 90% { 
+        transform: translate(20px, -15px); 
+        background: #ff4444;
+        box-shadow: 0 0 20px rgba(255, 68, 68, 0.9);
+    }
+    95%, 100% { 
+        transform: translate(0, 0); 
+        background: white;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+    }
+}
+
+@keyframes containerPulse {
+    0%, 35% { 
+        border-color: #4ecdc4;
+        box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+    }
+    40%, 90% { 
+        border-color: #ff4444;
+        box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+    }
+    95%, 100% { 
+        border-color: #4ecdc4;
+        box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+    }
+}
+
+@keyframes thresholdShow {
+    0%, 35% { opacity: 0; color: #4ecdc4; }
+    40%, 90% { opacity: 1; color: #ff4444; }
+    95%, 100% { opacity: 0; color: #4ecdc4; }
+}
+
+@keyframes fireEffect1 {
+    0%, 40% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+    45%, 50% { opacity: 1; transform: scale(1.2) rotate(10deg); }
+    55%, 60% { opacity: 0.8; transform: scale(0.9) rotate(-5deg); }
+    65%, 70% { opacity: 1; transform: scale(1.1) rotate(15deg); }
+    75%, 90% { opacity: 0.7; transform: scale(1) rotate(0deg); }
+    95%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+}
+
+@keyframes fireEffect2 {
+    0%, 42% { opacity: 0; transform: scale(0.3) translateY(0); }
+    47%, 52% { opacity: 0.9; transform: scale(1) translateY(-5px); }
+    57%, 62% { opacity: 0.6; transform: scale(0.8) translateY(0); }
+    67%, 72% { opacity: 1; transform: scale(1.1) translateY(-3px); }
+    77%, 88% { opacity: 0.8; transform: scale(0.9) translateY(0); }
+    93%, 100% { opacity: 0; transform: scale(0.3) translateY(0); }
+}
+
+@keyframes fireEffect3 {
+    0%, 44% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+    49%, 54% { opacity: 0.7; transform: scale(0.9) rotate(20deg); }
+    59%, 64% { opacity: 1; transform: scale(1.2) rotate(-10deg); }
+    69%, 74% { opacity: 0.9; transform: scale(1) rotate(25deg); }
+    79%, 86% { opacity: 0.6; transform: scale(0.8) rotate(0deg); }
+    91%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+}
+
+@keyframes stepHighlight1 {
+    0%, 10% { color: #4ecdc4; background: rgba(78, 205, 196, 0.2); }
+    15%, 35% { color: #4ecdc4; background: rgba(78, 205, 196, 0.2); }
+    40%, 100% { color: rgba(255, 255, 255, 0.5); background: rgba(255, 255, 255, 0.05); }
+}
+
+@keyframes stepHighlight2 {
+    0%, 35% { color: rgba(255, 255, 255, 0.5); background: rgba(255, 255, 255, 0.05); }
+    40%, 65% { color: #ff4444; background: rgba(255, 68, 68, 0.2); }
+    70%, 100% { color: rgba(255, 255, 255, 0.5); background: rgba(255, 255, 255, 0.05); }
+}
+
+@keyframes stepHighlight3 {
+    0%, 65% { color: rgba(255, 255, 255, 0.5); background: rgba(255, 255, 255, 0.05); }
+    70%, 90% { color: #ff4444; background: rgba(255, 68, 68, 0.2); }
+    95%, 100% { color: rgba(255, 255, 255, 0.5); background: rgba(255, 255, 255, 0.05); }
+}
+
+/* Remove old auto-fire styles */
+.auto-fire-active {
+    border-color: #ff4444 !important;
+    background: rgba(255, 68, 68, 0.2) !important;
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+}
+
+@keyframes fireEffect {
+    0%, 100% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+    50% { opacity: 1; transform: translateX(-50%) scale(1.2); }
+}
+
+@keyframes instructionBlink {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+/* Buttons Demo */
+.buttons-demo {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.demo-button {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #4ecdc4;
+    border-radius: 12px;
+    background: rgba(78, 205, 196, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    animation: buttonPulse 2s ease-in-out infinite;
+}
+
+.demo-button.shoot-demo {
+    animation-delay: 0s;
+}
+
+.demo-button.reload-demo {
+    animation-delay: 1s;
+}
+
+@keyframes buttonPulse {
+    0%, 90%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(78, 205, 196, 0.7); }
+    10%, 80% { transform: scale(1.1); box-shadow: 0 0 20px rgba(78, 205, 196, 0.7); }
+}
+
+.tutorial-footer {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.tutorial-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tutorial-btn.primary {
+    background: linear-gradient(135deg, #4ecdc4, #00ff00);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
+}
+
+.tutorial-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(78, 205, 196, 0.6);
+}
+
+.tutorial-btn.primary:active {
+    transform: translateY(0);
+}
+
+.tutorial-btn.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.tutorial-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.tutorial-btn.secondary:active {
+    transform: translateY(0);
+}
+
+/* Mobile specific tutorial adjustments */
+@media (max-width: 768px) and (orientation: portrait) {
+    .tutorial-container {
+        padding: 25px 20px;
+        max-width: 350px;
+    }
+    
+    .tutorial-header h2 {
+        font-size: 1.2rem;
+    }
+    
+    .tutorial-body p {
+        font-size: 0.9rem;
+    }
+    
+    .tutorial-subtitle {
+        font-size: 0.8rem !important;
+    }
+    
+    .joystick-demo-container {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .joystick-demo-knob {
+        width: 25px;
+        height: 25px;
+    }
+    
+    .tutorial-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
     }
 } 

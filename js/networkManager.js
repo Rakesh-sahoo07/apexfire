@@ -29,8 +29,7 @@ class NetworkManager {
             serverUrl = window.location.origin.replace(/:\d+/, ':3000');
         }
             
-        console.log('🔌 Connecting to server:', serverUrl);
-        console.log('🌐 Current location:', window.location.href);
+   
         this.socket = io(serverUrl);
         
         this.setupEventListeners();
@@ -38,20 +37,20 @@ class NetworkManager {
     
     setupEventListeners() {
         this.socket.on('connect', () => {
-            console.log('🔗 Connected to server');
+            
             this.isConnected = true;
             this.playerId = this.socket.id;
             this.emit('networkConnected');
         });
         
         this.socket.on('disconnect', () => {
-            console.log('❌ Disconnected from server');
+            
             this.isConnected = false;
             this.emit('networkDisconnected');
         });
         
         this.socket.on('roomJoined', (data) => {
-            console.log('🏠 Joined room:', data.roomId);
+           
             this.roomId = data.roomId;
             this.emit('roomJoined', data);
         });
@@ -65,12 +64,12 @@ class NetworkManager {
         });
         
         this.socket.on('gameStart', (data) => {
-            console.log('🎮 Game starting!');
+          
             this.emit('gameStart', data);
         });
         
         this.socket.on('gameEnd', (data) => {
-            console.log('🏁 Game ended');
+         
             this.emit('gameEnd', data);
         });
         
@@ -143,7 +142,7 @@ class NetworkManager {
     // Game actions
     joinMatchmaking(playerName) {
         if (this.isConnected) {
-            console.log('🔍 Joining matchmaking...');
+           
             this.socket.emit('joinMatchmaking', { name: playerName });
         } else {
             console.error('Not connected to server');

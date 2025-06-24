@@ -69,8 +69,6 @@ class GameController {
         }
     }
 
-
-
     setupEventListeners() {
         // Play button
         const playButton = document.getElementById('playButton');
@@ -177,6 +175,11 @@ class GameController {
             screen.classList.remove('active');
         });
 
+        // Clean up any active tutorials when switching screens
+        if (this.loadingTutorial && this.loadingTutorial.isActive) {
+            this.loadingTutorial.hideTutorial();
+        }
+
         // Show target screen
         document.getElementById(screenName).classList.add('active');
         this.currentScreen = screenName;
@@ -188,9 +191,57 @@ class GameController {
         
         // Join matchmaking through network manager
         window.networkManager.joinMatchmaking(this.playerName);
+        
+        // Show tutorial during loading if user hasn't seen it before
+        this.checkAndShowTutorial();
+    }
+
+    checkAndShowTutorial() {
+        const hasSeenTutorial = localStorage.getItem('apexfire_tutorial_completed');
+        const tutorialHint = document.getElementById('loadingTutorialHint');
+        
+        
+        if (!hasSeenTutorial) {
+            // Wait 0 seconds for the loading screen to appear, then show tutorial
+            setTimeout(() => {
+                this.showTutorialDuringLoading();
+                // Hide the tutorial hint once tutorial is shown
+                if (tutorialHint) {
+                    tutorialHint.style.display = 'none';
+                }
+            }, 0);
+        } else {
+            // User has already seen tutorial, hide the hint
+            if (tutorialHint) {
+                tutorialHint.style.display = 'none';
+            }
+        }
+    }
+    
+    showTutorialDuringLoading() {
+        // Create a tutorial system specifically for the loading screen
+        if (!window.loadingTutorialSystem) {
+            window.loadingTutorialSystem = new TutorialSystem(null);
+        }
+        
+        window.loadingTutorialSystem.showTutorial();
+        
+        // Store reference for cleanup
+        this.loadingTutorial = window.loadingTutorialSystem;
     }
 
     startGame(gameData) {
+        // Ensure tutorial is completely closed before starting game
+        if (this.loadingTutorial && this.loadingTutorial.isActive) {
+            this.loadingTutorial.forceCloseTutorial();
+            this.loadingTutorial = null;
+        }
+        
+        // Also close any global tutorial instances
+        if (window.loadingTutorialSystem && window.loadingTutorialSystem.isActive) {
+            window.loadingTutorialSystem.forceCloseTutorial();
+        }
+        
         this.showScreen('game');
         
         // Initialize game
@@ -274,7 +325,6 @@ class GameController {
     }
 
     initializeLobbyPlayers(players) {
-        console.log('Players in lobby:', players);
         if (players && players.length > 1) {
             // Update UI to show that other players are in the lobby
             const waitingInfo = document.querySelector('.loading-container p');

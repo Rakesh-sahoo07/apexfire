@@ -89,7 +89,6 @@ class GameEngine {
     initializeNetworkPlayers() {
         // Initialize other players from network data
         if (this.gameData && this.gameData.players) {
-            console.log('Initializing network players:', this.gameData.players);
             this.gameData.players.forEach(playerData => {
                 if (playerData.id !== window.networkManager.playerId) {
                     const networkPlayer = new Player(playerData.name, playerData.x, playerData.y, false, true);
@@ -102,10 +101,8 @@ class GameEngine {
                     networkPlayer.score = playerData.score;
                     networkPlayer.angle = playerData.angle;
                     this.networkPlayers.set(playerData.id, networkPlayer);
-                    console.log('Added network player:', playerData.name);
                 }
             });
-            console.log('Total network players:', this.networkPlayers.size);
         }
     }
     
@@ -119,7 +116,6 @@ class GameEngine {
             let player = this.networkPlayers.get(data.playerId);
             if (!player) {
                 // Create missing player if we receive movement data for unknown player
-                console.log('Creating missing player from movement data:', data.playerId);
                 player = new Player('Unknown', data.x, data.y, false, true);
                 player.id = data.playerId;
                 this.networkPlayers.set(data.playerId, player);
@@ -239,7 +235,6 @@ class GameEngine {
         window.networkManager.on('playerLeft', (data) => {
             const player = this.networkPlayers.get(data.playerId);
             if (player) {
-                console.log('Player left:', player.name, data.playerId);
                 this.networkPlayers.delete(data.playerId);
             }
         });
@@ -247,7 +242,6 @@ class GameEngine {
         // Handle position corrections from server
         window.networkManager.on('positionCorrection', (data) => {
             if (this.myPlayer) {
-                console.log('Position corrected by server');
                 this.myPlayer.x = data.x;
                 this.myPlayer.y = data.y;
                 this.myPlayer.angle = data.angle;
@@ -271,7 +265,6 @@ class GameEngine {
                         let player = this.networkPlayers.get(playerData.id);
                         if (!player) {
                             // Create missing network player
-                            console.log('Creating missing network player during sync:', playerData.id);
                             player = new Player(playerData.name || 'Unknown', playerData.x, playerData.y, false, true);
                             player.id = playerData.id;
                             player.health = playerData.health || 100;
@@ -300,7 +293,6 @@ class GameEngine {
     handlePlayersUpdate(data) {
         // Update existing players or add new ones from the full player list
         if (data.players) {
-            console.log(`Received player update with ${data.players.length} players`);
             
             // Track which players we should have
             const expectedPlayerIds = new Set();
@@ -316,7 +308,6 @@ class GameEngine {
                         player.id = playerData.id;
                         player.networkInitialized = true;
                         this.networkPlayers.set(playerData.id, player);
-                        console.log('Added new network player:', playerData.name, playerData.id);
                     }
                     
                     // Update player data (use current position if we have interpolation targets)
@@ -344,12 +335,10 @@ class GameEngine {
             // Remove players that are no longer in the room
             for (let [playerId, player] of this.networkPlayers) {
                 if (!expectedPlayerIds.has(playerId)) {
-                    console.log('Removing disconnected player:', player.name, playerId);
                     this.networkPlayers.delete(playerId);
                 }
             }
             
-            console.log(`Now tracking ${this.networkPlayers.size} network players`);
         }
     }
     
@@ -367,7 +356,6 @@ class GameEngine {
             player.score = playerData.score;
             player.angle = playerData.angle;
             this.networkPlayers.set(playerData.id, player);
-            console.log('Player joined during waiting:', playerData.name);
         }
     }
     
@@ -381,6 +369,26 @@ class GameEngine {
         
         // Setup leaderboard toggle functionality
         this.setupLeaderboardToggle();
+        
+        // Sound toggle functionality
+        const soundToggle = document.getElementById('soundToggle');
+        soundToggle.addEventListener('click', () => {
+            if (window.audioManager) {
+                window.audioManager.toggleSound();
+                soundToggle.textContent = window.audioManager.isMuted ? '🔇' : '🔊';
+                soundToggle.classList.toggle('muted', window.audioManager.isMuted);
+            }
+        });
+        
+        // Help toggle functionality
+        const helpToggle = document.getElementById('helpToggle');
+        helpToggle.addEventListener('click', () => {
+            // Create a temporary tutorial system for help
+            if (!window.helpTutorialSystem) {
+                window.helpTutorialSystem = new TutorialSystem(null);
+            }
+            window.helpTutorialSystem.forceShowTutorial();
+        });
     }
 
     setupLeaderboardToggle() {
@@ -430,7 +438,6 @@ class GameEngine {
             document.addEventListener('click', this.outsideClickBound);
         }, 100);
         
-        console.log('Leaderboard toggle setup complete');
     }
 
     removeExistingLeaderboardListeners() {
@@ -462,7 +469,6 @@ class GameEngine {
             return;
         }
         
-        console.log('Toggling leaderboard, current state:', leaderboard.classList.contains('show'));
         
         if (leaderboard.classList.contains('show')) {
             this.hideLeaderboard();
@@ -480,7 +486,7 @@ class GameEngine {
             return;
         }
         
-        console.log('Showing leaderboard');
+    
         
         // Ensure the leaderboard is ready
         leaderboard.classList.remove('hidden');
@@ -504,7 +510,7 @@ class GameEngine {
             return;
         }
         
-        console.log('Hiding leaderboard');
+   
         
         leaderboard.classList.remove('show');
         toggle.classList.remove('active');
@@ -654,10 +660,17 @@ class GameEngine {
         if (!this.isRunning) return;
         
         const currentTime = performance.now();
-        const deltaTime = currentTime - this.lastTime;
+        let deltaTime = currentTime - this.lastTime;
         this.lastTime = currentTime;
         
-        this.update(deltaTime);
+        // Cap deltaTime to prevent large jumps that cause jitter
+        deltaTime = Math.min(deltaTime, 33.33); // Max ~30 FPS equivalent
+        
+        // Smooth deltaTime to reduce jitter from frame rate variations
+        if (!this.smoothedDeltaTime) this.smoothedDeltaTime = deltaTime;
+        this.smoothedDeltaTime = this.smoothedDeltaTime * 0.9 + deltaTime * 0.1;
+        
+        this.update(this.smoothedDeltaTime);
         this.render();
         
         requestAnimationFrame(() => this.gameLoop());
@@ -669,76 +682,39 @@ class GameEngine {
         // Update game timer
         this.updateGameTimer(deltaTime);
 
-        // Update player movement from controls
+        // Update player movement from controls with anti-jitter system
         if (this.myPlayer.health > 0) {
             const moveInput = this.controls.getMoveInput();
-            const oldX = this.myPlayer.x;
-            const oldY = this.myPlayer.y;
-            const oldVx = this.myPlayer.vx;
-            const oldVy = this.myPlayer.vy;
             
-            // Apply movement input
-            this.myPlayer.move(moveInput.x, moveInput.y);
-            
-            // Test collision with new position
-            const newX = this.myPlayer.x + this.myPlayer.vx;
-            const newY = this.myPlayer.y + this.myPlayer.vy;
-            
-            // Create temporary player position for collision testing
-            const testPlayer = {
-                x: newX,
-                y: newY,
-                size: this.myPlayer.size
+            // Apply deadzone to reduce micro-jitter from input
+            const deadzone = 0.05;
+            const filteredInput = {
+                x: Math.abs(moveInput.x) < deadzone ? 0 : moveInput.x,
+                y: Math.abs(moveInput.y) < deadzone ? 0 : moveInput.y
             };
             
-            // Track if collision correction occurred
-            let collisionCorrected = false;
-                 
-            // Check collision with obstacles
+            // Apply movement input
+            this.myPlayer.move(filteredInput.x, filteredInput.y);
+            
+            // Simplified collision with single resolution step
+            const futureX = this.myPlayer.x + this.myPlayer.vx;
+            const futureY = this.myPlayer.y + this.myPlayer.vy;
+            
+            const testPlayer = { x: futureX, y: futureY, size: this.myPlayer.size };
+            
             if (this.checkObstacleCollision(testPlayer)) {
-                // Try moving only horizontally
-                testPlayer.x = newX;
-                testPlayer.y = this.myPlayer.y;
-                
-                if (!this.checkObstacleCollision(testPlayer)) {
-                    // Horizontal movement is okay, block vertical
-                    this.myPlayer.vy = 0;
-                    collisionCorrected = true;
-                } else {
-                    // Try moving only vertically
-                    testPlayer.x = this.myPlayer.x;
-                    testPlayer.y = newY;
-                    
-                    if (!this.checkObstacleCollision(testPlayer)) {
-                        // Vertical movement is okay, block horizontal
-                        this.myPlayer.vx = 0;
-                        collisionCorrected = true;
-                    } else {
-                        // Both directions blocked, stop all movement
-                        this.myPlayer.vx = 0;
-                        this.myPlayer.vy = 0;
-                        collisionCorrected = true;
-                    }
-                }
+                // Single-step collision resolution to eliminate multiple corrections
+                const slideResolution = this.resolveCollisionWithSliding(this.myPlayer, futureX, futureY);
+                this.myPlayer.vx = slideResolution.vx;
+                this.myPlayer.vy = slideResolution.vy;
             }
             
-            // Send position update to server with higher frequency and precision
+            // Simplified network updates to reduce jitter
             const now = Date.now();
-            const positionChanged = Math.abs(this.myPlayer.x - this.lastSentX) > 0.5 || 
-                                   Math.abs(this.myPlayer.y - this.lastSentY) > 0.5;
-            const angleChanged = Math.abs(this.myPlayer.angle - this.lastSentAngle) > 0.05;
-            const velocityChanged = Math.abs(this.myPlayer.vx - this.lastSentVx) > 0.1 ||
-                                   Math.abs(this.myPlayer.vy - this.lastSentVy) > 0.1;
-            const isMoving = Math.abs(this.myPlayer.vx) > 0.01 || Math.abs(this.myPlayer.vy) > 0.01;
+            const isMoving = Math.abs(this.myPlayer.vx) > 0.02 || Math.abs(this.myPlayer.vy) > 0.02;
+            const updateRate = isMoving ? this.networkUpdateRate : this.networkUpdateRate * 3;
             
-            // Send updates more frequently when moving, less when stationary
-            const updateRate = isMoving ? this.networkUpdateRate : this.networkUpdateRate * 2;
-            
-            // Force immediate update if collision was corrected or regular update conditions are met
-            if (collisionCorrected || 
-                ((now - this.lastNetworkUpdate > updateRate) && 
-                (positionChanged || angleChanged || velocityChanged || isMoving))) {
-                
+            if (now - this.lastNetworkUpdate > updateRate) {
                 window.networkManager.sendPlayerMove(
                     this.myPlayer.x, 
                     this.myPlayer.y, 
@@ -755,36 +731,11 @@ class GameEngine {
             }
         }
             
-        // Update my player (no AI update) but handle collision properly
-        const beforeUpdateX = this.myPlayer.x;
-        const beforeUpdateY = this.myPlayer.y;
-        
+        // Update my player with single collision step (no redundant checks)
         this.myPlayer.update(deltaTime, [this.myPlayer], {
             width: this.mapWidth,
             height: this.mapHeight
         });
-
-        // Check if the player moved into an obstacle after the update
-        if (this.checkObstacleCollision(this.myPlayer)) {
-            // Revert to previous position and stop movement
-            this.myPlayer.x = beforeUpdateX;
-            this.myPlayer.y = beforeUpdateY;
-            this.myPlayer.vx = 0;
-            this.myPlayer.vy = 0;
-            
-            // Send immediate correction to server
-            window.networkManager.sendPlayerMove(
-                this.myPlayer.x, 
-                this.myPlayer.y, 
-                this.myPlayer.angle,
-                this.myPlayer.vx,
-                this.myPlayer.vy
-            );
-            this.lastSentX = this.myPlayer.x;
-            this.lastSentY = this.myPlayer.y;
-            this.lastSentVx = this.myPlayer.vx;
-            this.lastSentVy = this.myPlayer.vy;
-        }
         
         // Update network players (visual only, no AI)
         this.networkPlayers.forEach(player => {
@@ -911,16 +862,19 @@ class GameEngine {
     
     updateCamera() {
         if (this.myPlayer) {
-            // Smooth camera follow
+            // Smoother camera follow with reduced jitter
             const targetX = this.myPlayer.x - this.canvas.width / 2;
             const targetY = this.myPlayer.y - this.canvas.height / 2;
             
-            this.camera.x += (targetX - this.camera.x) * 0.1;
-            this.camera.y += (targetY - this.camera.y) * 0.1;
+            // Reduce camera interpolation speed to minimize jitter
+            const cameraSmoothing = 0.06; // Reduced from 0.1 for smoother movement
+            this.camera.x += (targetX - this.camera.x) * cameraSmoothing;
+            this.camera.y += (targetY - this.camera.y) * cameraSmoothing;
             
-            // Keep camera in bounds
-            this.camera.x = Math.max(0, Math.min(this.mapWidth - this.canvas.width, this.camera.x));
-            this.camera.y = Math.max(0, Math.min(this.mapHeight - this.canvas.height, this.camera.y));
+            // Keep camera in bounds with smoother clamping
+            const margin = 10; // Small buffer to prevent edge jitter
+            this.camera.x = Math.max(-margin, Math.min(this.mapWidth - this.canvas.width + margin, this.camera.x));
+            this.camera.y = Math.max(-margin, Math.min(this.mapHeight - this.canvas.height + margin, this.camera.y));
         }
     }
     
@@ -1131,6 +1085,126 @@ class GameEngine {
         const distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
         return distance < (r1 + r2);
     }
+
+    // New method: Resolve collision with sliding along obstacles
+    resolveCollisionWithSliding(player, targetX, targetY) {
+        const playerSize = player.size || 25;
+        
+        // Try horizontal movement only
+        const testPlayerH = {
+            x: targetX,
+            y: player.y,
+            size: playerSize
+        };
+        
+        // Try vertical movement only
+        const testPlayerV = {
+            x: player.x,
+            y: targetY,
+            size: playerSize
+        };
+        
+        const canMoveHorizontal = !this.checkObstacleCollision(testPlayerH);
+        const canMoveVertical = !this.checkObstacleCollision(testPlayerV);
+        
+        if (canMoveHorizontal && !canMoveVertical) {
+            // Slide horizontally
+            return {
+                resolved: true,
+                vx: player.vx,
+                vy: 0
+            };
+        } else if (!canMoveHorizontal && canMoveVertical) {
+            // Slide vertically
+            return {
+                resolved: true,
+                vx: 0,
+                vy: player.vy
+            };
+        } else if (canMoveHorizontal && canMoveVertical) {
+            // Both directions are free (shouldn't happen but handle it)
+            return {
+                resolved: true,
+                vx: player.vx,
+                vy: player.vy
+            };
+        } else {
+            // Neither direction is free
+            return {
+                resolved: false,
+                vx: 0,
+                vy: 0
+            };
+        }
+    }
+
+    // New method: Calculate gentle pushback force when inside obstacle
+    calculatePushbackForce(player) {
+        const playerSize = player.size || 25;
+        let totalPushX = 0;
+        let totalPushY = 0;
+        let collisionCount = 0;
+        
+        // Check each obstacle and calculate pushback direction
+        for (let obstacle of this.obstacles) {
+            if (this.checkRectangleCollision(
+                player.x - playerSize,
+                player.y - playerSize,
+                playerSize * 2,
+                playerSize * 2,
+                obstacle.x,
+                obstacle.y,
+                obstacle.width,
+                obstacle.height
+            )) {
+                // Calculate center points
+                const playerCenterX = player.x;
+                const playerCenterY = player.y;
+                const obstacleCenterX = obstacle.x + obstacle.width / 2;
+                const obstacleCenterY = obstacle.y + obstacle.height / 2;
+                
+                // Calculate direction from obstacle center to player center
+                const dx = playerCenterX - obstacleCenterX;
+                const dy = playerCenterY - obstacleCenterY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance > 0) {
+                    totalPushX += (dx / distance);
+                    totalPushY += (dy / distance);
+                    collisionCount++;
+                }
+            }
+        }
+        
+        // Check map boundaries
+        const pushbackMargin = 5;
+        if (player.x - playerSize < pushbackMargin) {
+            totalPushX += 1;
+            collisionCount++;
+        }
+        if (player.x + playerSize > this.mapWidth - pushbackMargin) {
+            totalPushX -= 1;
+            collisionCount++;
+        }
+        if (player.y - playerSize < pushbackMargin) {
+            totalPushY += 1;
+            collisionCount++;
+        }
+        if (player.y + playerSize > this.mapHeight - pushbackMargin) {
+            totalPushY -= 1;
+            collisionCount++;
+        }
+        
+        // Average the pushback forces
+        if (collisionCount > 0) {
+            return {
+                x: totalPushX / collisionCount,
+                y: totalPushY / collisionCount
+            };
+        }
+        
+        return { x: 0, y: 0 };
+    }
     
     render() {
         // Clear canvas
@@ -1162,7 +1236,7 @@ class GameEngine {
         // Debug: log player count and sync status occasionally
         if (Date.now() % 5000 < 50) {
             const networkPlayerNames = Array.from(this.networkPlayers.values()).map(p => p.name);
-            console.log(`Players in game - Me: ${this.myPlayer ? this.myPlayer.name : 'none'}, Others: ${this.networkPlayers.size} [${networkPlayerNames.join(', ')}]`);
+
             
             // Check for players with missing sync data
             this.networkPlayers.forEach((player, id) => {
