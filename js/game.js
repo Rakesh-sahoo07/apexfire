@@ -91,7 +91,17 @@ class GameEngine {
         if (this.gameData && this.gameData.players) {
             this.gameData.players.forEach(playerData => {
                 if (playerData.id !== window.networkManager.playerId) {
-                    const networkPlayer = new Player(playerData.name, playerData.x, playerData.y, false, true);
+                    // Create player or bot based on data
+                    let networkPlayer;
+                    if (playerData.isBot) {
+                        // For bots, we just treat them like network players but with bot flag
+                        networkPlayer = new Player(playerData.name, playerData.x, playerData.y, false, true);
+                        networkPlayer.isBot = true;
+                    } else {
+                        networkPlayer = new Player(playerData.name, playerData.x, playerData.y, false, true);
+                        networkPlayer.isBot = false;
+                    }
+                    
                     networkPlayer.id = playerData.id;
                     networkPlayer.health = playerData.health;
                     networkPlayer.ammo = playerData.ammo;
@@ -303,9 +313,10 @@ class GameEngine {
                     
                     let player = this.networkPlayers.get(playerData.id);
                     if (!player) {
-                        // Create new network player
+                        // Create new network player or bot
                         player = new Player(playerData.name, playerData.x, playerData.y, false, true);
                         player.id = playerData.id;
+                        player.isBot = playerData.isBot || false;
                         player.networkInitialized = true;
                         this.networkPlayers.set(playerData.id, player);
                     }
@@ -348,6 +359,7 @@ class GameEngine {
         if (playerData.id !== window.networkManager.playerId) {
             const player = new Player(playerData.name, playerData.x, playerData.y, false, true);
             player.id = playerData.id;
+            player.isBot = playerData.isBot || false;
             player.health = playerData.health;
             player.ammo = playerData.ammo;
             player.reserveAmmo = playerData.reserveAmmo;
